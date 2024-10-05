@@ -16,6 +16,8 @@ export default function Page() {
   const [fileDetail, setFileDetail] = useState<typeFileDetail | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const shareCodeRef = useRef<string | null>(null);
+  const clientCodeRef = useRef<string | null>(null);
 
   const requestHostToSendOffer = async () => {
     const requestHostToSendOfferMsg = {
@@ -55,16 +57,31 @@ export default function Page() {
       }
       if (parsedMessage.event === "EVENT_OFFER") {
         console.log("event offer received form host");
+        clientCodeRef.current = parsedMessage.clientId;
+        shareCodeRef.current = parsedMessage.shareCode;
         const pc = new RTCPeerConnection();
         pcRef.current = pc;
+
+        pc.ontrack = (event) => {
+          console.log("Track kind:", event.track.kind); // Check if it's "video"
+          if (event.track.kind === "video") {
+            if (videoRef.current) {
+              videoRef.current.srcObject = new MediaStream([event.track]);
+            }
+          }
+        };
+
         pc.onicecandidate = (event) => {
+          console.log("ShareCode Inside Ice", shareCodeRef.current);
+          console.log("ClientCode Inside ICE", clientCodeRef.current);
           if (event.candidate) {
             socket.send(
               JSON.stringify({
                 event: "EVENT_ICE_CANDIDATE",
-                shareCode: shareCode,
-                clientId: clientId,
+                shareCode: shareCodeRef.current,
+                clientId: clientCodeRef.current,
                 candidate: event.candidate,
+                from: "CLIENT",
               })
             );
           }
@@ -77,8 +94,8 @@ export default function Page() {
             JSON.stringify({
               event: "EVENT_ANSWER",
               answer: answer,
-              shareCode: shareCode,
-              clientId: clientId,
+              shareCode: shareCodeRef.current,
+              clientId: clientCodeRef.current,
             })
           );
         } catch (error) {
@@ -90,14 +107,6 @@ export default function Page() {
         const pc = pcRef.current;
         if (!pc) return;
         await pc.addIceCandidate(candidate);
-      }
-      if (pcRef.current) {
-        pcRef.current.ontrack = (event) => {
-          console.log(event.track);
-          if (videoRef.current) {
-            videoRef.current.srcObject = new MediaStream([event.track]);
-          }
-        };
       }
     };
     socket.onclose = () => {
@@ -131,7 +140,12 @@ export default function Page() {
         </button>
       </div>
       <div className="w-screen h-screen relative">
-        <video className="w-full h-full" ref={videoRef} controls></video>
+        <video
+          className="w-full h-full"
+          ref={videoRef}
+          controls={true}
+          autoPlay={true}
+        ></video>
       </div>
     </div>
   );

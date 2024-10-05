@@ -11,6 +11,8 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
   const urlRef = useRef<HTMLDivElement | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const [shareCode, setShareCode] = useState<string | null>(null);
+  const shareCodeRef = useRef<string | null>(null);
+  const clientCodeRef = useRef<string | null>(null);
 
   const CopyText = () => {
     if (urlRef.current) {
@@ -34,13 +36,16 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
     pcRef.current = pc;
 
     pc.onicecandidate = (event) => {
+      console.log("ShareCode Inside Ice", shareCodeRef.current);
+      console.log("ClientCode Inside ICE", clientCodeRef.current);
       if (event.candidate) {
         socket.send(
           JSON.stringify({
             event: "EVENT_ICE_CANDIDATE",
-            shareCode: RES_MSG.shareCode,
-            clientId: RES_MSG.clientId,
+            shareCode: shareCodeRef.current,
+            clientId: clientCodeRef.current,
             candidate: event.candidate,
+            from: "HOST",
           })
         );
       }
@@ -51,21 +56,27 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
       audio: true,
     });
     pcRef.current?.addTrack(stream.getVideoTracks()[0]);
+    let isNegotiating = false;
+
     pc.onnegotiationneeded = async () => {
+      if (isNegotiating) return; // Prevent duplicate negotiations
+      isNegotiating = true;
       try {
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
         socket.send(
           JSON.stringify({
             event: "EVENT_OFFER",
-            shareCode: RES_MSG.shareCode,
-            clientId: RES_MSG.clientId,
+            shareCode: shareCodeRef.current,
+            clientId: clientCodeRef.current,
             offer: offer,
           })
         );
-        console.log("offer sent to the server");
+        console.log("Offer sent to the server");
       } catch (error) {
         console.error("Error during WebRTC negotiation:", error);
+      } finally {
+        isNegotiating = false;
       }
     };
   };
@@ -96,19 +107,20 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
         console.log("EVENT_REQUEST_SHARE_CODE");
         setShareCode(RES_MSG.shareCode);
       } else if (RES_MSG.event === "EVENT_REQUEST_HOST_TO_SEND_OFFER") {
+        clientCodeRef.current = RES_MSG.clientId;
+        shareCodeRef.current = RES_MSG.shareCode;
+        console.log("ref sharecode", shareCodeRef.current);
+        console.log("ref clientcode", clientCodeRef.current);
         console.log("EVENT_REQUEST_HOST_TO_SEND_OFFER");
         createOffer(RES_MSG);
       } else if (RES_MSG.event === "EVENT_ANSWER") {
         console.log("EVENT_ANSWER");
         acceptAnswer(RES_MSG);
       } else if (RES_MSG.event === "EVENT_ICE_CANDIDATE") {
-        console.log("EVENT_ICE_CANDIDATE");
-        if (RES_MSG.event === "EVENT_ICE_CANDIDATE") {
-          const candidate = new RTCIceCandidate(RES_MSG.candidate);
-          const pc = pcRef.current;
-          if (!pc) return;
-          await pc.addIceCandidate(candidate);
-        }
+        const candidate = new RTCIceCandidate(RES_MSG.candidate);
+        const pc = pcRef.current;
+        if (!pc) return;
+        await pc.addIceCandidate(candidate);
       }
     };
     socket.onclose = () => {
