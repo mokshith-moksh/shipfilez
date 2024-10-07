@@ -22,8 +22,8 @@ export default function Page() {
   const requestHostToSendOffer = async () => {
     const requestHostToSendOfferMsg = {
       event: "EVENT_REQUEST_HOST_TO_SEND_OFFER",
-      shareCode: shareCode,
-      clientId: clientId,
+      shareCode,
+      clientId,
     };
     const socket = socketRef.current;
     if (!socket) return;
@@ -40,7 +40,7 @@ export default function Page() {
       socket.send(
         JSON.stringify({
           event: "EVENT_REQUEST_CLIENT_ID",
-          shareCode: shareCode,
+          shareCode,
         })
       );
     };
@@ -56,24 +56,16 @@ export default function Page() {
         });
       }
       if (parsedMessage.event === "EVENT_OFFER") {
-        console.log("event offer received form host");
+        console.log("Offer received from host");
         clientCodeRef.current = parsedMessage.clientId;
         shareCodeRef.current = parsedMessage.shareCode;
+
+        // Create RTCPeerConnection
         const pc = new RTCPeerConnection();
         pcRef.current = pc;
 
-        pc.ontrack = (event) => {
-          console.log("Track kind:", event.track.kind); // Check if it's "video"
-          if (event.track.kind === "video") {
-            if (videoRef.current) {
-              videoRef.current.srcObject = new MediaStream([event.track]);
-            }
-          }
-        };
-
+        // Handle incoming ICE candidates
         pc.onicecandidate = (event) => {
-          console.log("ShareCode Inside Ice", shareCodeRef.current);
-          console.log("ClientCode Inside ICE", clientCodeRef.current);
           if (event.candidate) {
             socket.send(
               JSON.stringify({
@@ -86,22 +78,96 @@ export default function Page() {
             );
           }
         };
+
+        // Listen for the 'datachannel' event to receive the DataChannel
+        pc.ondatachannel = (event) => {
+          const dataChannel = event.channel;
+          console.log("DataChannel received from host");
+          dataChannel.binaryType = "blob";
+          // File receiving logic
+          let receivedBuffer: Blob[] = [];
+          let receivedFileMetadata: {
+            fileName: string;
+            fileSize: number;
+          } | null = null;
+
+          dataChannel.onmessage = (event: MessageEvent) => {
+            dataChannel.binaryType = "blob";
+            const message = event.data;
+
+            if (typeof message === "string") {
+              try {
+                const parsedMessage = JSON.parse(message);
+                console.log("DataChannel parsed message:", parsedMessage);
+
+                if (parsedMessage.type === "metadata") {
+                  // Initialize file metadata
+                  receivedFileMetadata = {
+                    fileName: parsedMessage.fileName,
+                    fileSize: parsedMessage.fileSize,
+                  };
+                  receivedBuffer = []; // Clear the buffer for incoming file data
+                  console.log("File metadata received:", receivedFileMetadata);
+                } else if (parsedMessage.type === "end-of-file") {
+                  // Combine received Blob chunks into a single Blob
+                  const fileBlob = new Blob(receivedBuffer);
+                  const downloadLink = document.createElement("a");
+                  downloadLink.href = URL.createObjectURL(fileBlob);
+                  if (!receivedFileMetadata) return;
+                  downloadLink.download = receivedFileMetadata.fileName;
+                  document.body.appendChild(downloadLink);
+                  downloadLink.click();
+                  document.body.removeChild(downloadLink);
+
+                  // Clear buffer and metadata after the file is saved
+                  receivedBuffer = [];
+                  receivedFileMetadata = null;
+                }
+              } catch (error) {
+                console.error("Error parsing message:", error);
+              }
+            } else if (message instanceof Blob) {
+              // Add the received Blob chunk to the buffer
+              if (receivedFileMetadata) {
+                receivedBuffer.push(message); // Store the Blob chunk
+                console.log(
+                  "Received Blob chunk, buffer size:",
+                  receivedBuffer.length
+                );
+              }
+            }
+          };
+
+          dataChannel.onopen = () => {
+            console.log("Data channel is open and ready to receive data");
+          };
+
+          dataChannel.onclose = () => {
+            console.log("Data channel closed");
+          };
+        };
+
         try {
+          // Set the remote offer and create the answer
           await pc.setRemoteDescription(parsedMessage.offer);
           const answer = await pc.createAnswer();
           await pc.setLocalDescription(answer);
+
+          // Send the answer back to the host
           socket.send(
             JSON.stringify({
               event: "EVENT_ANSWER",
-              answer: answer,
+              answer,
               shareCode: shareCodeRef.current,
               clientId: clientCodeRef.current,
             })
           );
+          console.log("Answer sent to the server");
         } catch (error) {
-          console.log("negosiation error", error);
+          console.error("Error during WebRTC negotiation:", error);
         }
       }
+
       if (parsedMessage.event === "EVENT_ICE_CANDIDATE") {
         const candidate = new RTCIceCandidate(parsedMessage.candidate);
         const pc = pcRef.current;
@@ -122,26 +188,27 @@ export default function Page() {
         socketRef.current = null;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <div>
       {isConnected ? "Connected" : "Disconnected"}
-      <div className="w-20 h-11">
+      <div className="h-11 w-20">
         fileDetails
         <div>{fileDetail && <div>{JSON.stringify(fileDetail)}</div>}</div>
       </div>
       <div>
         <button
           onClick={requestHostToSendOffer}
-          className="w-10 h-5 bg-amber-400 text-black font-bold p-2"
+          className="h-5 w-10 bg-amber-400 p-2 font-bold text-black"
         >
           Download
         </button>
       </div>
-      <div className="w-screen h-screen relative">
+      <div className="relative h-screen w-screen">
         <video
-          className="w-full h-full"
+          className="size-full"
           ref={videoRef}
           controls={true}
           autoPlay={true}

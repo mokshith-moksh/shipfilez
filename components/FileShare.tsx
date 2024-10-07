@@ -27,17 +27,61 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
         });
     }
   };
-  const createOffer = async (RES_MSG: any) => {
+  const createOffer = async () => {
     console.log("Creating offer to client");
     const socket = socketRef.current;
     if (!socket) return;
-
     const pc = new RTCPeerConnection();
     pcRef.current = pc;
 
+    const dataChannel = pc.createDataChannel("fileTransfer");
+
+    dataChannel.onopen = async () => {
+      dataChannel.binaryType = "blob";
+      console.log("Data channel is open");
+
+      for (const file of files) {
+        // Send file metadata
+        dataChannel.send(
+          JSON.stringify({
+            type: "metadata",
+            fileName: file.name,
+            fileSize: file.size,
+          })
+        );
+
+        let offset = 0;
+        const maxChunkSize = 16 * 1024; // Define the chunk size
+
+        // Send the file in chunks
+        while (offset < file.size) {
+          const chunk = file.slice(offset, offset + maxChunkSize); // Get a slice of the Blob
+          dataChannel.send(chunk); // Directly send the Blob chunk
+          console.log("Chunk sent:", chunk);
+          offset += maxChunkSize; // Update the offset
+          await new Promise((resolve) => setTimeout(resolve, 10)); // Small delay to avoid overwhelming the channel
+        }
+
+        // Notify that the file transfer is complete
+        dataChannel.send(
+          JSON.stringify({
+            type: "end-of-file",
+            fileName: file.name,
+          })
+        );
+      }
+    };
+
+    dataChannel.onerror = (error) => {
+      console.error("Data channel error:", error);
+    };
+
+    dataChannel.onclose = () => {
+      console.log("Data channel is closed");
+    };
+
+    // Handle ICE candidates
     pc.onicecandidate = (event) => {
-      console.log("ShareCode Inside Ice", shareCodeRef.current);
-      console.log("ClientCode Inside ICE", clientCodeRef.current);
       if (event.candidate) {
         socket.send(
           JSON.stringify({
@@ -50,36 +94,47 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
         );
       }
     };
-    console.log("Creating offer to client negosiation started");
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
-    });
-    pcRef.current?.addTrack(stream.getVideoTracks()[0]);
-    let isNegotiating = false;
 
+    let isNegotiating = false; // Track negotiation state to avoid duplicate negotiations
+
+    // Handle negotiation needed
     pc.onnegotiationneeded = async () => {
-      if (isNegotiating) return; // Prevent duplicate negotiations
+      if (isNegotiating) return; // Prevent duplicate negotiation
       isNegotiating = true;
       try {
         const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer);
+        await pc.setLocalDescription(offer); // Set local description
+
+        // Send offer through signaling server
         socket.send(
           JSON.stringify({
             event: "EVENT_OFFER",
             shareCode: shareCodeRef.current,
             clientId: clientCodeRef.current,
-            offer: offer,
+            offer,
           })
         );
         console.log("Offer sent to the server");
       } catch (error) {
         console.error("Error during WebRTC negotiation:", error);
       } finally {
-        isNegotiating = false;
+        isNegotiating = false; // Reset negotiation flag
+      }
+    };
+
+    // Close connection cleanup
+    pc.onconnectionstatechange = () => {
+      if (
+        pc.connectionState === "disconnected" ||
+        pc.connectionState === "failed"
+      ) {
+        console.log("Connection closed or failed");
+        pc.close(); // Ensure resources are released
+        pcRef.current = null; // Clear the reference
       }
     };
   };
+
   const acceptAnswer = async (RES_MSG: any) => {
     const pc = pcRef.current;
     if (!pc) return;
@@ -112,7 +167,7 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
         console.log("ref sharecode", shareCodeRef.current);
         console.log("ref clientcode", clientCodeRef.current);
         console.log("EVENT_REQUEST_HOST_TO_SEND_OFFER");
-        createOffer(RES_MSG);
+        createOffer();
       } else if (RES_MSG.event === "EVENT_ANSWER") {
         console.log("EVENT_ANSWER");
         acceptAnswer(RES_MSG);
@@ -141,6 +196,7 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
         pcRef.current = null;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [files]);
 
   return (
@@ -150,18 +206,18 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
         {shareCode ? (
           <>
             <div>Name of the event: {shareCode}</div>
-            <div className="flex gap-5 justify-center">
+            <div className="flex justify-center gap-5">
               {/* Display the share code in this div */}
               <div
                 ref={urlRef}
-                className="bg-white w-1/2 h-6 text-black px-1 overflow-hidden"
+                className="h-6 w-1/2 overflow-hidden bg-white px-1 text-black"
               >
                 localhost:3000/receiver?code={shareCode}
               </div>
 
               {/* Button to copy the content of the div */}
               <button
-                className="bg-blue-600 w-1/3 rounded-md"
+                className="w-1/3 rounded-md bg-blue-600"
                 onClick={CopyText}
               >
                 Copy
