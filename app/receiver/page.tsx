@@ -56,12 +56,20 @@ export default function Page() {
         });
       }
       if (parsedMessage.event === "EVENT_OFFER") {
+        const rtcConfiguration = {
+          iceServers: [
+            {
+              urls: "stun:stun.l.google.com:19302", // Google's public STUN server
+            },
+            { urls: "stun:stun1.l.google.com:19302" },
+          ],
+        };
         console.log("Offer received from host");
         clientCodeRef.current = parsedMessage.clientId;
         shareCodeRef.current = parsedMessage.shareCode;
 
         // Create RTCPeerConnection
-        const pc = new RTCPeerConnection();
+        const pc = new RTCPeerConnection(rtcConfiguration);
         pcRef.current = pc;
 
         // Handle incoming ICE candidates

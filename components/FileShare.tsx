@@ -28,10 +28,18 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
     }
   };
   const createOffer = async () => {
+    const rtcConfiguration = {
+      iceServers: [
+        {
+          urls: "stun:stun.l.google.com:19302", // Google's public STUN server
+        },
+        { urls: "stun:stun1.l.google.com:19302" },
+      ],
+    };
     console.log("Creating offer to client");
     const socket = socketRef.current;
     if (!socket) return;
-    const pc = new RTCPeerConnection();
+    const pc = new RTCPeerConnection(rtcConfiguration);
     pcRef.current = pc;
 
     const dataChannel = pc.createDataChannel("fileTransfer");
