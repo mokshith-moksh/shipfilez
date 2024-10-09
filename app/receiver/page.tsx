@@ -1,11 +1,15 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+let streamSaver: any;
 
 interface typeFileDetail {
   fileName: string;
   fileLength: number;
 }
+
+let worker: any;
+
 export default function Page() {
   const searchParams = useSearchParams();
   const shareCode = searchParams.get("code");
@@ -18,6 +22,7 @@ export default function Page() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const shareCodeRef = useRef<string | null>(null);
   const clientCodeRef = useRef<string | null>(null);
+  const fileNameRef = useRef<string | null>(null);
 
   const requestHostToSendOffer = async () => {
     const requestHostToSendOfferMsg = {
@@ -31,6 +36,17 @@ export default function Page() {
   };
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      worker = new Worker(new URL("./worker.ts", import.meta.url));
+      import("streamsaver")
+        .then((StreamSaver) => {
+          console.log("StreamSaver.js loaded", StreamSaver);
+          streamSaver = StreamSaver;
+        })
+        .catch((error) => {
+          console.error("Error loading StreamSaver:", error);
+        });
+    }
     if (socketRef.current) return;
     const socket = new WebSocket("ws://localhost:8080");
     socketRef.current = socket;
@@ -92,8 +108,6 @@ export default function Page() {
           const dataChannel = event.channel;
           console.log("DataChannel received from host");
           dataChannel.binaryType = "blob";
-          // File receiving logic
-          let receivedBuffer: Blob[] = [];
           let receivedFileMetadata: {
             fileName: string;
             fileSize: number;
@@ -109,39 +123,32 @@ export default function Page() {
                 console.log("DataChannel parsed message:", parsedMessage);
 
                 if (parsedMessage.type === "metadata") {
-                  // Initialize file metadata
                   receivedFileMetadata = {
                     fileName: parsedMessage.fileName,
                     fileSize: parsedMessage.fileSize,
                   };
-                  receivedBuffer = []; // Clear the buffer for incoming file data
+                  fileNameRef.current = parsedMessage.fileName;
                   console.log("File metadata received:", receivedFileMetadata);
                 } else if (parsedMessage.type === "end-of-file") {
-                  // Combine received Blob chunks into a single Blob
-                  const fileBlob = new Blob(receivedBuffer);
-                  const downloadLink = document.createElement("a");
-                  downloadLink.href = URL.createObjectURL(fileBlob);
-                  if (!receivedFileMetadata) return;
-                  downloadLink.download = receivedFileMetadata.fileName;
-                  document.body.appendChild(downloadLink);
-                  downloadLink.click();
-                  document.body.removeChild(downloadLink);
-
-                  // Clear buffer and metadata after the file is saved
-                  receivedBuffer = [];
-                  receivedFileMetadata = null;
+                  console.log("download complete");
+                  setTimeout(() => {
+                    worker.postMessage("download");
+                    worker.addEventListener("message", (event: any) => {
+                      if (!fileNameRef.current) return;
+                      const stream = event.data.stream();
+                      const fileStream = streamSaver.createWriteStream(
+                        fileNameRef.current
+                      );
+                      stream.pipeTo(fileStream);
+                    });
+                  }, 1000);
                 }
               } catch (error) {
                 console.error("Error parsing message:", error);
               }
             } else if (message instanceof Blob) {
-              // Add the received Blob chunk to the buffer
               if (receivedFileMetadata) {
-                receivedBuffer.push(message); // Store the Blob chunk
-                console.log(
-                  "Received Blob chunk, buffer size:",
-                  receivedBuffer.length
-                );
+                worker.postMessage(message);
               }
             }
           };

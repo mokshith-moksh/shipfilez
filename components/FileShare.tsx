@@ -13,6 +13,7 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
   const [shareCode, setShareCode] = useState<string | null>(null);
   const shareCodeRef = useRef<string | null>(null);
   const clientCodeRef = useRef<string | null>(null);
+  const [progress, setProgress] = useState<number>(0); // New state for file transfer progress
 
   const CopyText = () => {
     if (urlRef.current) {
@@ -27,6 +28,7 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
         });
     }
   };
+
   const createOffer = async () => {
     const rtcConfiguration = {
       iceServers: [
@@ -59,14 +61,23 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
         );
 
         let offset = 0;
-        const maxChunkSize = 16 * 1024; // Define the chunk size
+        const maxChunkSize = 64 * 1024; // Define the chunk size
 
         // Send the file in chunks
         while (offset < file.size) {
           const chunk = file.slice(offset, offset + maxChunkSize); // Get a slice of the Blob
           dataChannel.send(chunk); // Directly send the Blob chunk
           console.log("Chunk sent:", chunk);
+
           offset += maxChunkSize; // Update the offset
+
+          // Update the progress state
+          const progressPercentage = Math.min(
+            Math.round((offset / file.size) * 100),
+            100
+          );
+          setProgress(progressPercentage); // Update progress state
+
           await new Promise((resolve) => setTimeout(resolve, 10)); // Small delay to avoid overwhelming the channel
         }
 
@@ -149,9 +160,10 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
     try {
       await pc.setRemoteDescription(RES_MSG.answer);
     } catch (error) {
-      console.log("error during accepting the answer:", error);
+      console.log("Error during accepting the answer:", error);
     }
   };
+
   useEffect(() => {
     if (socketRef.current) return;
     const socket = new WebSocket("ws://localhost:8080");
@@ -172,8 +184,6 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
       } else if (RES_MSG.event === "EVENT_REQUEST_HOST_TO_SEND_OFFER") {
         clientCodeRef.current = RES_MSG.clientId;
         shareCodeRef.current = RES_MSG.shareCode;
-        console.log("ref sharecode", shareCodeRef.current);
-        console.log("ref clientcode", clientCodeRef.current);
         console.log("EVENT_REQUEST_HOST_TO_SEND_OFFER");
         createOffer();
       } else if (RES_MSG.event === "EVENT_ANSWER") {
@@ -215,15 +225,12 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
           <>
             <div>Name of the event: {shareCode}</div>
             <div className="flex justify-center gap-5">
-              {/* Display the share code in this div */}
               <div
                 ref={urlRef}
                 className="h-6 w-1/2 overflow-hidden bg-white px-1 text-black"
               >
                 localhost:3000/receiver?code={shareCode}
               </div>
-
-              {/* Button to copy the content of the div */}
               <button
                 className="w-1/3 rounded-md bg-blue-600"
                 onClick={CopyText}
@@ -235,6 +242,9 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
         ) : (
           <div>Waiting for message...</div>
         )}
+      </div>
+      <div>
+        <p>File Transfer Progress: {progress}%</p> {/* Display the progress */}
       </div>
     </div>
   );
