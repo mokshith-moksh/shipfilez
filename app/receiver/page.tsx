@@ -13,7 +13,6 @@ let worker: any;
 export default function Page() {
   const searchParams = useSearchParams();
   const shareCode = searchParams.get("code");
-  console.log(shareCode);
   const socketRef = useRef<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [clientId, setClientId] = useState<string | null>(null);
@@ -40,7 +39,6 @@ export default function Page() {
       worker = new Worker(new URL("./worker.ts", import.meta.url));
       import("streamsaver")
         .then((StreamSaver) => {
-          console.log("StreamSaver.js loaded", StreamSaver);
           streamSaver = StreamSaver;
         })
         .catch((error) => {
@@ -51,7 +49,6 @@ export default function Page() {
     const socket = new WebSocket("ws://localhost:8080");
     socketRef.current = socket;
     socket.onopen = () => {
-      console.log("WebSocket connected");
       setIsConnected(true);
       socket.send(
         JSON.stringify({
@@ -63,7 +60,6 @@ export default function Page() {
 
     socket.onmessage = async (event) => {
       const parsedMessage = JSON.parse(event.data);
-      console.log("Parsed message:", parsedMessage);
       if (parsedMessage.event === "EVENT_REQUEST_CLIENT_ID") {
         setClientId(parsedMessage.clientId);
         setFileDetail({
@@ -80,7 +76,6 @@ export default function Page() {
             { urls: "stun:stun1.l.google.com:19302" },
           ],
         };
-        console.log("Offer received from host");
         clientCodeRef.current = parsedMessage.clientId;
         shareCodeRef.current = parsedMessage.shareCode;
 
@@ -106,7 +101,6 @@ export default function Page() {
         // Listen for the 'datachannel' event to receive the DataChannel
         pc.ondatachannel = (event) => {
           const dataChannel = event.channel;
-          console.log("DataChannel received from host");
           dataChannel.binaryType = "blob";
           let receivedFileMetadata: {
             fileName: string;
@@ -120,7 +114,6 @@ export default function Page() {
             if (typeof message === "string") {
               try {
                 const parsedMessage = JSON.parse(message);
-                console.log("DataChannel parsed message:", parsedMessage);
 
                 if (parsedMessage.type === "metadata") {
                   receivedFileMetadata = {
@@ -128,9 +121,7 @@ export default function Page() {
                     fileSize: parsedMessage.fileSize,
                   };
                   fileNameRef.current = parsedMessage.fileName;
-                  console.log("File metadata received:", receivedFileMetadata);
                 } else if (parsedMessage.type === "end-of-file") {
-                  console.log("download complete");
                   setTimeout(() => {
                     worker.postMessage("download");
                     worker.addEventListener("message", (event: any) => {
@@ -152,14 +143,6 @@ export default function Page() {
               }
             }
           };
-
-          dataChannel.onopen = () => {
-            console.log("Data channel is open and ready to receive data");
-          };
-
-          dataChannel.onclose = () => {
-            console.log("Data channel closed");
-          };
         };
 
         try {
@@ -177,7 +160,6 @@ export default function Page() {
               clientId: clientCodeRef.current,
             })
           );
-          console.log("Answer sent to the server");
         } catch (error) {
           console.error("Error during WebRTC negotiation:", error);
         }
@@ -191,7 +173,6 @@ export default function Page() {
       }
     };
     socket.onclose = () => {
-      console.log("WebSocket disconnected");
       setIsConnected(false);
     };
     socket.onerror = (error) => {

@@ -13,19 +13,14 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
   const [shareCode, setShareCode] = useState<string | null>(null);
   const shareCodeRef = useRef<string | null>(null);
   const clientCodeRef = useRef<string | null>(null);
-  const [progress, setProgress] = useState<number>(0); // New state for file transfer progress
+  const [progress, setProgress] = useState<number>(0);
 
   const CopyText = () => {
     if (urlRef.current) {
       const textToCopy = urlRef.current.innerText;
-      navigator.clipboard
-        .writeText(textToCopy)
-        .then(() => {
-          console.log("Text copied to clipboard:", textToCopy);
-        })
-        .catch((err) => {
-          console.error("Failed to copy text: ", err);
-        });
+      navigator.clipboard.writeText(textToCopy).catch((err) => {
+        console.error("Failed to copy text: ", err);
+      });
     }
   };
 
@@ -33,12 +28,11 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
     const rtcConfiguration = {
       iceServers: [
         {
-          urls: "stun:stun.l.google.com:19302", // Google's public STUN server
+          urls: "stun:stun.l.google.com:19302",
         },
         { urls: "stun:stun1.l.google.com:19302" },
       ],
     };
-    console.log("Creating offer to client");
     const socket = socketRef.current;
     if (!socket) return;
     const pc = new RTCPeerConnection(rtcConfiguration);
@@ -48,7 +42,6 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
 
     dataChannel.onopen = async () => {
       dataChannel.binaryType = "blob";
-      console.log("Data channel is open");
 
       for (const file of files) {
         // Send file metadata
@@ -61,27 +54,20 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
         );
 
         let offset = 0;
-        const maxChunkSize = 64 * 1024; // Define the chunk size
-
-        // Send the file in chunks
+        const maxChunkSize = 64 * 1024;
         while (offset < file.size) {
-          const chunk = file.slice(offset, offset + maxChunkSize); // Get a slice of the Blob
-          dataChannel.send(chunk); // Directly send the Blob chunk
-          console.log("Chunk sent:", chunk);
+          const chunk = file.slice(offset, offset + maxChunkSize);
+          dataChannel.send(chunk);
 
-          offset += maxChunkSize; // Update the offset
+          offset += maxChunkSize;
 
-          // Update the progress state
           const progressPercentage = Math.min(
             Math.round((offset / file.size) * 100),
             100
           );
-          setProgress(progressPercentage); // Update progress state
-
-          await new Promise((resolve) => setTimeout(resolve, 10)); // Small delay to avoid overwhelming the channel
+          setProgress(progressPercentage);
+          await new Promise((resolve) => setTimeout(resolve, 10));
         }
-
-        // Notify that the file transfer is complete
         dataChannel.send(
           JSON.stringify({
             type: "end-of-file",
@@ -99,7 +85,6 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
       console.log("Data channel is closed");
     };
 
-    // Handle ICE candidates
     pc.onicecandidate = (event) => {
       if (event.candidate) {
         socket.send(
@@ -114,17 +99,14 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
       }
     };
 
-    let isNegotiating = false; // Track negotiation state to avoid duplicate negotiations
+    let isNegotiating = false;
 
-    // Handle negotiation needed
     pc.onnegotiationneeded = async () => {
-      if (isNegotiating) return; // Prevent duplicate negotiation
+      if (isNegotiating) return;
       isNegotiating = true;
       try {
         const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer); // Set local description
-
-        // Send offer through signaling server
+        await pc.setLocalDescription(offer);
         socket.send(
           JSON.stringify({
             event: "EVENT_OFFER",
@@ -133,23 +115,20 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
             offer,
           })
         );
-        console.log("Offer sent to the server");
       } catch (error) {
         console.error("Error during WebRTC negotiation:", error);
       } finally {
-        isNegotiating = false; // Reset negotiation flag
+        isNegotiating = false;
       }
     };
 
-    // Close connection cleanup
     pc.onconnectionstatechange = () => {
       if (
         pc.connectionState === "disconnected" ||
         pc.connectionState === "failed"
       ) {
-        console.log("Connection closed or failed");
-        pc.close(); // Ensure resources are released
-        pcRef.current = null; // Clear the reference
+        pc.close();
+        pcRef.current = null;
       }
     };
   };
@@ -169,7 +148,6 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
     const socket = new WebSocket("ws://localhost:8080");
     socketRef.current = socket;
     socket.onopen = () => {
-      console.log("WebSocket connected");
       setIsConnected(true);
       const initialMessage = {
         event: "EVENT_REQUEST_SHARE_CODE",
@@ -179,15 +157,12 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
     socket.onmessage = async (event) => {
       const RES_MSG = JSON.parse(event.data);
       if (RES_MSG.event === "EVENT_REQUEST_SHARE_CODE") {
-        console.log("EVENT_REQUEST_SHARE_CODE");
         setShareCode(RES_MSG.shareCode);
       } else if (RES_MSG.event === "EVENT_REQUEST_HOST_TO_SEND_OFFER") {
         clientCodeRef.current = RES_MSG.clientId;
         shareCodeRef.current = RES_MSG.shareCode;
-        console.log("EVENT_REQUEST_HOST_TO_SEND_OFFER");
         createOffer();
       } else if (RES_MSG.event === "EVENT_ANSWER") {
-        console.log("EVENT_ANSWER");
         acceptAnswer(RES_MSG);
       } else if (RES_MSG.event === "EVENT_ICE_CANDIDATE") {
         const candidate = new RTCIceCandidate(RES_MSG.candidate);
@@ -197,14 +172,12 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
       }
     };
     socket.onclose = () => {
-      console.log("WebSocket disconnected");
       setIsConnected(false);
     };
     socket.onerror = (error) => {
       console.error("WebSocket error:", error);
     };
     return () => {
-      console.log("Cleaning up WebSocket and WebRTC connection");
       if (socketRef.current) {
         socketRef.current.close();
         socketRef.current = null;
@@ -244,7 +217,7 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
         )}
       </div>
       <div>
-        <p>File Transfer Progress: {progress}%</p> {/* Display the progress */}
+        <p>File Transfer Progress: {progress}%</p>
       </div>
     </div>
   );
