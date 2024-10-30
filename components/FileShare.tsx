@@ -44,7 +44,6 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
       dataChannel.binaryType = "blob";
 
       for (const file of files) {
-        // Send file metadata
         dataChannel.send(
           JSON.stringify({
             type: "metadata",

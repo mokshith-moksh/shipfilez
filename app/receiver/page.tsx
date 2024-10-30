@@ -18,10 +18,10 @@ export default function Page() {
   const [clientId, setClientId] = useState<string | null>(null);
   const [fileDetail, setFileDetail] = useState<typeFileDetail | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
   const shareCodeRef = useRef<string | null>(null);
   const clientCodeRef = useRef<string | null>(null);
   const fileNameRef = useRef<string | null>(null);
+  const [percentage, setpercentage] = useState<string>("0");
 
   const requestHostToSendOffer = async () => {
     const requestHostToSendOfferMsg = {
@@ -97,8 +97,7 @@ export default function Page() {
             );
           }
         };
-
-        // Listen for the 'datachannel' event to receive the DataChannel
+        let receivedFileSize = 0;
         pc.ondatachannel = (event) => {
           const dataChannel = event.channel;
           dataChannel.binaryType = "blob";
@@ -140,6 +139,12 @@ export default function Page() {
             } else if (message instanceof Blob) {
               if (receivedFileMetadata) {
                 worker.postMessage(message);
+                const blobSize = message.size;
+                receivedFileSize += blobSize;
+                const downloadPercent =
+                  (receivedFileSize / receivedFileMetadata.fileSize) * 100;
+                setpercentage(downloadPercent.toFixed(2));
+                console.log(`Downloaded: ${downloadPercent.toFixed(2)}%`);
               }
             }
           };
@@ -202,14 +207,7 @@ export default function Page() {
           Download
         </button>
       </div>
-      <div className="relative h-screen w-screen">
-        <video
-          className="size-full"
-          ref={videoRef}
-          controls={true}
-          autoPlay={true}
-        ></video>
-      </div>
+      <div className="text-4xl">Percentage ------- {percentage}%</div>
     </div>
   );
 }
