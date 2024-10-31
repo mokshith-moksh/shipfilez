@@ -14,6 +14,7 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
   const shareCodeRef = useRef<string | null>(null);
   const clientCodeRef = useRef<string | null>(null);
   const [progress, setProgress] = useState<number>(0);
+  const [NearByShareCode, setNearByShareCode] = useState<string | null>(null);
 
   const CopyText = () => {
     if (urlRef.current) {
@@ -22,6 +23,17 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
         console.error("Failed to copy text: ", err);
       });
     }
+  };
+
+  const RequestNearByShareCode = () => {
+    const socket = socketRef.current;
+    if (!socket) return null;
+    socket.send(
+      JSON.stringify({
+        event: "EVENT_REQUEST_NEAR_BY_SHARE_CODE",
+        shareCode,
+      })
+    );
   };
 
   const createOffer = async () => {
@@ -157,6 +169,9 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
       const RES_MSG = JSON.parse(event.data);
       if (RES_MSG.event === "EVENT_REQUEST_SHARE_CODE") {
         setShareCode(RES_MSG.shareCode);
+      } else if (RES_MSG.event === "EVENT_REQUEST_NEAR_BY_SHARE_CODE") {
+        console.log("NearByShareCode -----> ", RES_MSG.nearByShareCode);
+        setNearByShareCode(RES_MSG.nearByShareCode);
       } else if (RES_MSG.event === "EVENT_REQUEST_HOST_TO_SEND_OFFER") {
         clientCodeRef.current = RES_MSG.clientId;
         shareCodeRef.current = RES_MSG.shareCode;
@@ -214,6 +229,17 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
         ) : (
           <div>Waiting for message...</div>
         )}
+      </div>
+      <div>
+        <button
+          className="h-16 w-60 bg-green-500"
+          onClick={RequestNearByShareCode}
+        >
+          Share NearBy
+        </button>
+        <div className="bg-yellow-400 font-semibold text-black">
+          {NearByShareCode}
+        </div>
       </div>
       <div>
         <p>File Transfer Progress: {progress}%</p>

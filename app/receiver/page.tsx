@@ -12,7 +12,7 @@ let worker: any;
 
 export default function Page() {
   const searchParams = useSearchParams();
-  const shareCode = searchParams.get("code");
+  const IshareCode = searchParams.get("code");
   const socketRef = useRef<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [clientId, setClientId] = useState<string | null>(null);
@@ -26,7 +26,7 @@ export default function Page() {
   const requestHostToSendOffer = async () => {
     const requestHostToSendOfferMsg = {
       event: "EVENT_REQUEST_HOST_TO_SEND_OFFER",
-      shareCode,
+      shareCode: shareCodeRef.current,
       clientId,
     };
     const socket = socketRef.current;
@@ -53,7 +53,7 @@ export default function Page() {
       socket.send(
         JSON.stringify({
           event: "EVENT_REQUEST_CLIENT_ID",
-          shareCode,
+          shareCode: IshareCode,
         })
       );
     };
@@ -66,6 +66,8 @@ export default function Page() {
           fileName: parsedMessage.fileName,
           fileLength: parsedMessage.fileLength,
         });
+        shareCodeRef.current = parsedMessage.sharedCode;
+        console.log("EVENT_REQUEST_CLIENT_ID-Respone", shareCodeRef.current);
       }
       if (parsedMessage.event === "EVENT_OFFER") {
         const rtcConfiguration = {
@@ -77,7 +79,7 @@ export default function Page() {
           ],
         };
         clientCodeRef.current = parsedMessage.clientId;
-        shareCodeRef.current = parsedMessage.shareCode;
+        shareCodeRef.current = parsedMessage.sharedCode;
 
         // Create RTCPeerConnection
         const pc = new RTCPeerConnection(rtcConfiguration);
@@ -157,6 +159,8 @@ export default function Page() {
           await pc.setLocalDescription(answer);
 
           // Send the answer back to the host
+          console.log("EVENT_ANSWER", shareCodeRef.current);
+          console.log("EVENT_ANSWER", clientCodeRef.current);
           socket.send(
             JSON.stringify({
               event: "EVENT_ANSWER",
