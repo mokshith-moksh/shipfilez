@@ -1,8 +1,8 @@
-import { cn } from "@/lib/utils";
 import React, { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useDropzone } from "react-dropzone";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 const mainVariant = {
   initial: {
@@ -13,6 +13,15 @@ const mainVariant = {
     x: 20,
     y: -20,
     opacity: 0.9,
+  },
+};
+
+const secondaryVariant = {
+  initial: {
+    opacity: 0,
+  },
+  animate: {
+    opacity: 1,
   },
 };
 
@@ -50,7 +59,7 @@ export const FileUpload = ({
       <motion.div
         onClick={handleClick}
         whileHover="animate"
-        className="group/file border-dash-custom relative flex h-[45vh] w-[25vw] cursor-pointer items-center justify-center overflow-hidden rounded-lg border p-10"
+        className="group/file relative block w-full cursor-pointer overflow-hidden rounded-lg p-10 "
       >
         <input
           ref={fileInputRef}
@@ -59,56 +68,6 @@ export const FileUpload = ({
           onChange={(e) => handleFileChange(Array.from(e.target.files || []))}
           className="hidden"
         />
-        {files.length > 0 &&
-          files.map((file, idx) => (
-            <motion.div
-              key={"file" + idx}
-              layoutId={idx === 0 ? "file-upload" : "file-upload-" + idx}
-              className={cn(
-                "relative overflow-hidden z-40 bg-white dark:bg-neutral-900 flex flex-col items-start justify-start md:h-24 p-4 mt-4 w-full mx-auto rounded-md",
-                "shadow-sm"
-              )}
-            >
-              <div className="flex w-full items-center justify-between gap-4">
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  layout
-                  className="max-w-xs truncate text-base text-neutral-700 dark:text-neutral-300"
-                >
-                  {file.name}
-                </motion.p>
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  layout
-                  // eslint-disable-next-line tailwindcss/no-custom-classname
-                  className="shadow-input w-fit shrink-0 rounded-lg px-2 py-1 text-sm text-neutral-600 dark:bg-neutral-800 dark:text-white"
-                >
-                  {(file.size / (1024 * 1024)).toFixed(2)} MB
-                </motion.p>
-              </div>
-
-              <div className="mt-2 flex w-full flex-col items-start justify-between text-sm text-neutral-600 md:flex-row md:items-center dark:text-neutral-400">
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  layout
-                  className="rounded-md bg-gray-100 px-1 py-0.5 dark:bg-neutral-800 "
-                >
-                  {file.type}
-                </motion.p>
-
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  layout
-                >
-                  modified {new Date(file.lastModified).toLocaleDateString()}
-                </motion.p>
-              </div>
-            </motion.div>
-          ))}
         {!files.length && (
           <motion.div
             layoutId="file-upload"
@@ -118,6 +77,9 @@ export const FileUpload = ({
               stiffness: 300,
               damping: 20,
             }}
+            className={cn(
+              "border-dash-custom relative group-hover/file:shadow-2xl z-40 bg-[#003366] flex items-center justify-center h-[40vh] mt-4 w-[20vw] mx-auto rounded-3xl"
+            )}
           >
             {isDragActive ? (
               <motion.div className="min-h-full min-w-full ">
@@ -137,6 +99,12 @@ export const FileUpload = ({
               />
             )}
           </motion.div>
+        )}
+        {!files.length && (
+          <motion.div
+            variants={secondaryVariant}
+            className="absolute inset-0 z-30 mx-auto mt-14 flex h-[40vh] w-[20vw] items-center justify-center rounded-3xl border border-dashed border-sky-400 bg-transparent opacity-0"
+          ></motion.div>
         )}
       </motion.div>
     </div>

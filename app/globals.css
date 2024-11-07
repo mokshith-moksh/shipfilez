@@ -19,8 +19,11 @@ body {
   }
 
   .border-dash-custom {
-    border-width: px;
-    border-style: dashed;
-    border-image: repeating-linear-gradient(white) 1;
+    border-image-slice: 27; /* Applies the image slice equally to all sides */
+    border-image-width: 50px; /* Sets the border thickness */
+    border-image-outset: 0; /* Controls the space between border and element edges */
+    border-image-repeat: round; /* Repeats the SVG along the border */
+    border-image-source: url("https://res.cloudinary.com/da3j9iqkp/image/upload/v1730988969/a2shbvqn5b7k20pcqqqr.svg");
+    border-style: solid;
   }
 }

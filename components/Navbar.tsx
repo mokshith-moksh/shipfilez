@@ -69,7 +69,7 @@ const SlideTabs = () => {
           opacity: 0,
         }));
       }}
-      className="relative mx-auto flex w-fit rounded-full border-2 border-dashed border-[#ffffff] bg-[#0c3b5f] p-1 px-6"
+      className="relative mx-auto flex w-fit rounded-full border-2 border-[#ffffff] bg-[#003366] p-1 px-6"
     >
       <Tab setPosition={setPosition}>
         <a href="/about">ABOUT</a>
@@ -82,9 +82,6 @@ const SlideTabs = () => {
       </Tab>
       <Tab setPosition={setPosition}>
         <a href="/nearby">NEARBY SHARE</a>
-      </Tab>
-      <Tab setPosition={setPosition}>
-        <a href="/privacy">PRIVACY</a>
       </Tab>
       <Cursor position={position} />
     </ul>
