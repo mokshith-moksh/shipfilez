@@ -78,7 +78,7 @@ export const FileUpload = ({
               damping: 20,
             }}
             className={cn(
-              "border-dash-custom relative group-hover/file:shadow-2xl z-40 bg-[#003366] flex items-center justify-center h-[40vh] mt-4 w-[20vw] mx-auto rounded-3xl"
+              "border-dash-custom relative group-hover/file:shadow-2xl z-40 bg-[#003366] flex items-center justify-center h-[40vh] w-[60vw] md:w-[40vw] lg:w-[20vw] mx-auto rounded-3xl"
             )}
           >
             {isDragActive ? (

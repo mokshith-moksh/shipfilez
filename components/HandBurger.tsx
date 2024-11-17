@@ -7,7 +7,7 @@ export const HandBurger = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <motion.div className=" ">
+    <motion.div className="md:hidden ">
       {/* Hamburger/Close Icon */}
       <motion.div
         className="text-yellow-400 z-50 absolute right-6 top-4 text-4xl cursor-pointer"

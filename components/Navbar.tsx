@@ -5,6 +5,7 @@ import { Dispatch, SetStateAction, useRef, useState } from "react";
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { HandBurger } from "./HandBurger";
 
 type Position = {
   left: number;
@@ -39,7 +40,7 @@ export const Nav = () => {
         },
       }}
       transition={{ duration: 0.2 }}
-      className="fixed top-0 z-10 box-border flex w-full justify-center pt-3"
+      className="fixed top-0 z-50 box-border flex w-full justify-center pt-3 "
     >
       <a href="/" className="absolute left-8 top-5 flex gap-4">
         <Image
@@ -47,11 +48,15 @@ export const Nav = () => {
           width={100}
           height={100}
           alt="Logo"
+          className="hidden lg:flex "
         />
-        <div className="text-3xl font-bold text-white">ShipFilez</div>
+        <div className="text-xl md:text-2xl lg:text-3xl font-bold text-white">
+          ShipFilez
+        </div>
       </a>
 
       <SlideTabs />
+      <HandBurger />
     </motion.div>
   );
 };
@@ -71,7 +76,7 @@ const SlideTabs = () => {
           opacity: 0,
         }));
       }}
-      className="relative mx-auto  flex w-fit rounded-full border-2 border-[#ffffff] bg-[#003366] p-1 px-6 font-bold"
+      className="relative mx-auto hidden md:flex w-fit rounded-full border-2 border-[#ffffff] bg-[#003366] p-1 md:px-0 lg:px-6 font-bold"
     >
       <Tab setPosition={setPosition} link="/about">
         <a href="/about">ABOUT</a>

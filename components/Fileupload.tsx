@@ -12,8 +12,8 @@ const FileComponent = () => {
   };
 
   return (
-    <div className="relative flex h-full flex-col items-center">
-      <div className="flex size-full items-center">
+    <div className="relative flex h-full flex-col items-center ">
+      <div className="flex size-full items-start mt-40">
         {uploadedFiles.length === 0 ? (
           <FileUpload onChange={handleFileChange} />
         ) : (
