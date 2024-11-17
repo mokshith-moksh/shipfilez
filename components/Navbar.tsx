@@ -4,6 +4,7 @@ import App from "next/app";
 import { Dispatch, SetStateAction, useRef, useState } from "react";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 type Position = {
   left: number;
@@ -40,13 +41,14 @@ export const Nav = () => {
       transition={{ duration: 0.2 }}
       className="fixed top-0 z-10 box-border flex w-full justify-center pt-3"
     >
-      <a href="/" className="absolute left-8 top-5">
+      <a href="/" className="absolute left-8 top-5 flex gap-4">
         <Image
           src="https://res.cloudinary.com/da3j9iqkp/image/upload/v1730913696/qjfojuvybafoiuhqhr70.svg"
           width={100}
           height={100}
-          alt="Picture of the author"
+          alt="Logo"
         />
+        <div className="text-3xl font-bold text-white">ShipFilez</div>
       </a>
 
       <SlideTabs />
@@ -69,18 +71,18 @@ const SlideTabs = () => {
           opacity: 0,
         }));
       }}
-      className="relative mx-auto flex w-fit rounded-full border-2 border-[#ffffff] bg-[#003366] p-1 px-6"
+      className="relative mx-auto  flex w-fit rounded-full border-2 border-[#ffffff] bg-[#003366] p-1 px-6 font-bold"
     >
-      <Tab setPosition={setPosition}>
+      <Tab setPosition={setPosition} link="/about">
         <a href="/about">ABOUT</a>
       </Tab>
-      <Tab setPosition={setPosition}>
+      <Tab setPosition={setPosition} link="/blog">
         <a href="/blog">BLOG</a>
       </Tab>
-      <Tab setPosition={setPosition}>
+      <Tab setPosition={setPosition} link="/faq">
         <a href="/faq">FAQ</a>
       </Tab>
-      <Tab setPosition={setPosition}>
+      <Tab setPosition={setPosition} link="/nearby">
         <a href="/nearby">NEARBY SHARE</a>
       </Tab>
       <Cursor position={position} />
@@ -91,14 +93,17 @@ const SlideTabs = () => {
 const Tab = ({
   children,
   setPosition,
+  link,
 }: {
   children: any;
+  link: string;
   setPosition: Dispatch<SetStateAction<Position>>;
 }) => {
   const ref = useRef<null | HTMLLIElement>(null);
-
+  const router = useRouter();
   return (
     <li
+      onClick={() => router.push(link)}
       ref={ref}
       onMouseEnter={() => {
         if (!ref?.current) return;
@@ -111,7 +116,7 @@ const Tab = ({
           opacity: 1,
         });
       }}
-      className="relative z-10 block cursor-pointer px-3 py-1.5 text-xs uppercase text-[#D9F8FF] mix-blend-difference md:px-5 md:py-3 md:text-base"
+      className="relative z-10 block cursor-pointer text-xs uppercase text-white hover:text-black md:px-5 md:py-3 md:text-base"
     >
       {children}
     </li>
@@ -124,7 +129,7 @@ const Cursor = ({ position }: { position: Position }) => {
       animate={{
         ...position,
       }}
-      className="absolute z-0 h-7 rounded-full bg-[#ffd700] md:h-12"
+      className="absolute z-0 h-7 rounded-full bg-yellow-400 md:h-12"
     />
   );
 };

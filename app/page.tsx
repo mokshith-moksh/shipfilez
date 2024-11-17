@@ -6,7 +6,7 @@ import Wave from "react-wavify";
 export default function Home() {
   return (
     <div
-      className="relative mx-auto flex h-screen w-screen bg-cover bg-center"
+      className="relative mx-auto flex h-screen w-screen bg-slate-900 bg-cover bg-center"
       style={{
         backgroundImage:
           "url('https://res.cloudinary.com/da3j9iqkp/image/upload/v1730989736/iqgxciixwtfburooeffb.svg')",
@@ -24,15 +24,15 @@ export default function Home() {
         />
       </div>
 
-      {/* Wave at the bottom of the hero section */}
-      <div className="absolute bottom-0 z-30 h-[30vh] w-full bg-red-300">
+      <div className="absolute bottom-0 z-30 h-[35vh] w-full overflow-hidden">
         <Wave
+          style={{ height: "40vh" }}
           fill="#052454"
           paused={false}
           options={{
             height: 30,
-            amplitude: 100,
-            speed: 0.25,
+            amplitude: 20,
+            speed: 0.5,
             points: 2,
           }}
         />

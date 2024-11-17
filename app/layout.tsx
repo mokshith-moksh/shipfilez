@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import React from "react";
 import { Nav } from "@/components/Navbar";
+import { Toaster } from "sonner";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -33,6 +34,7 @@ export default function RootLayout({
         <div className="flex flex-col items-center">
           <Nav />
           {children}
+          <Toaster />
         </div>
       </body>
     </html>

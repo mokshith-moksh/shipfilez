@@ -1,5 +1,12 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
+import QRCode from "react-qr-code";
+import { BsCopy } from "react-icons/bs";
+import { BiSolidCircle } from "react-icons/bi";
+import { Input } from "./ui/input";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "./ui/button";
+import { toast } from "sonner";
 
 interface FileShareProps {
   files: File[];
@@ -8,20 +15,24 @@ interface FileShareProps {
 const FileShare: React.FC<FileShareProps> = ({ files }) => {
   const socketRef = useRef<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState<boolean>(false);
-  const urlRef = useRef<HTMLDivElement | null>(null);
+  const urlRef = useRef<HTMLInputElement | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const [shareCode, setShareCode] = useState<string | null>(null);
   const shareCodeRef = useRef<string | null>(null);
   const clientCodeRef = useRef<string | null>(null);
   const [progress, setProgress] = useState<number>(0);
   const [NearByShareCode, setNearByShareCode] = useState<string | null>(null);
+  const shareCodeCopyRef = useRef<HTMLButtonElement | null>(null);
 
-  const CopyText = () => {
-    if (urlRef.current) {
-      const textToCopy = urlRef.current.innerText;
+  const CopyText = (text: string) => {
+    if (text) {
+      const textToCopy = text;
       navigator.clipboard.writeText(textToCopy).catch((err) => {
         console.error("Failed to copy text: ", err);
       });
+      toast("Copied");
+    } else {
+      toast("Not able to copy text");
     }
   };
 
@@ -205,44 +216,70 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
   }, [files]);
 
   return (
-    <div>
-      <div>WebSocket Status: {isConnected ? "Connected" : "Disconnected"}</div>
-      <div>
-        {shareCode ? (
-          <>
-            <div>Name of the event: {shareCode}</div>
-            <div className="flex justify-center gap-5">
-              <div
-                ref={urlRef}
-                className="h-6 w-1/2 overflow-hidden bg-white px-1 text-black"
-              >
-                localhost:3000/receiver?code={shareCode}
+    <div className="flex size-full items-start justify-center gap-16 pt-36 text-white">
+      <div className="flex flex-col gap-10">
+        <div className="flex items-center justify-start gap-3 text-xl font-bold">
+          {isConnected ? (
+            <BiSolidCircle className="border-[#14992c] text-[#24cc3e]" />
+          ) : (
+            <BiSolidCircle className="text-[#f34f4f]" />
+          )}{" "}
+          <p>Status</p>
+        </div>
+
+        <div className="flex flex-col gap-6">
+          {shareCode ? (
+            <>
+              <div className="flex justify-center gap-3 ">
+                <Input
+                  ref={urlRef}
+                  className="flex h-10 w-[85%] rounded-lg bg-white px-1 text-2xl text-black"
+                  value={`localhost:3000/receiver?code=${shareCode}`}
+                  readOnly
+                />
+                <button
+                  className="w-fit rounded-md text-3xl text-white"
+                  onClick={() => CopyText(urlRef.current!.value)}
+                >
+                  <BsCopy />
+                </button>
               </div>
-              <button
-                className="w-1/3 rounded-md bg-blue-600"
-                onClick={CopyText}
+            </>
+          ) : (
+            <div>Waiting for message...</div>
+          )}
+          <div className="flex flex-col gap-5">
+            {!NearByShareCode ? (
+              <Button
+                // eslint-disable-next-line tailwindcss/no-custom-classname
+                className="text-md h-11 w-60 bg-yellow-400 font-bold text-black hover:bg-yellow-500"
+                onClick={RequestNearByShareCode}
               >
-                Copy
-              </button>
-            </div>
-          </>
-        ) : (
-          <div>Waiting for message...</div>
-        )}
-      </div>
-      <div>
-        <button
-          className="h-16 w-60 bg-green-500"
-          onClick={RequestNearByShareCode}
-        >
-          Share NearBy
-        </button>
-        <div className="bg-yellow-400 font-semibold text-black">
-          {NearByShareCode}
+                Share with nearby devices
+              </Button>
+            ) : (
+              <Button
+                className="flex h-14 cursor-pointer items-center justify-center rounded-lg bg-yellow-400 text-xl font-semibold text-black hover:bg-yellow-500"
+                ref={shareCodeCopyRef}
+                onClick={() => CopyText(NearByShareCode)}
+              >
+                {NearByShareCode}
+              </Button>
+            )}
+          </div>
+          <Progress value={progress} />
         </div>
       </div>
-      <div>
-        <p>File Transfer Progress: {progress}%</p>
+
+      <div className="size-[35%]">
+        <QRCode
+          size={512}
+          bgColor="#ffffff"
+          fgColor="#000000"
+          style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+          value={`https://moksh-portfolio-com.netlify.app`}
+          viewBox={`0 0 256 256`}
+        />
       </div>
     </div>
   );
