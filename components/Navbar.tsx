@@ -50,7 +50,7 @@ export const Nav = () => {
           alt="Logo"
           className="hidden lg:flex "
         />
-        <div className="text-xl md:text-2xl lg:text-3xl font-bold text-white">
+        <div className="text-2xl md:text-2xl lg:text-3xl font-bold text-white">
           ShipFilez
         </div>
       </a>

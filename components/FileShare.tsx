@@ -216,8 +216,8 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
   }, [files]);
 
   return (
-    <div className="flex size-full items-start justify-center gap-16 pt-36 text-white">
-      <div className="flex flex-col gap-10">
+    <div className="flex flex-col-reverse md:flex-row-reverse size-full items-center justify-end md:items-start md:justify-center gap-8 pt-16 text-white">
+      <div className="flex flex-col w-[70%] md:w-[40%] gap-6">
         <div className="flex items-center justify-start gap-3 text-xl font-bold">
           {isConnected ? (
             <BiSolidCircle className="border-[#14992c] text-[#24cc3e]" />
@@ -233,7 +233,7 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
               <div className="flex justify-center gap-3 ">
                 <Input
                   ref={urlRef}
-                  className="flex h-10 w-[85%] rounded-lg bg-white px-1 text-2xl text-black"
+                  className="flex h-10 w-[85%] rounded-lg bg-white px-1 text-lg md:text-xl text-black"
                   value={`localhost:3000/receiver?code=${shareCode}`}
                   readOnly
                 />
@@ -271,14 +271,15 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
         </div>
       </div>
 
-      <div className="size-[35%]">
+      <div className="relative">
         <QRCode
-          size={512}
+          size={250}
           bgColor="#ffffff"
           fgColor="#000000"
           style={{ height: "auto", maxWidth: "100%", width: "100%" }}
           value={`https://moksh-portfolio-com.netlify.app`}
           viewBox={`0 0 256 256`}
+          className="w-fit h-fit"
         />
       </div>
     </div>

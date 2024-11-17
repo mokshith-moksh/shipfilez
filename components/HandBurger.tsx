@@ -2,8 +2,10 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { AiOutlineClose } from "react-icons/ai";
+import { useRouter } from "next/navigation";
 
 export const HandBurger = () => {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
 
   return (
@@ -21,7 +23,7 @@ export const HandBurger = () => {
 
       {/* Mobile Menu */}
       <motion.div
-        className="absolute z-40 right-0 top-0 w-[100vw] rounded-md h-[100vh] bg-blue-900 bg-opacity-80 flex flex-col items-center justify-center gap-8"
+        className="absolute z-40 right-0 top-0 w-[100vw] h-[100vh] bg-[#062354] opacity-90 flex flex-col items-center justify-center gap-8 rounded-l-lg"
         initial={{ x: "100%" }}
         animate={{ x: open ? "0%" : "100%" }}
         transition={{
@@ -31,34 +33,61 @@ export const HandBurger = () => {
         }}
         style={{ pointerEvents: open ? "auto" : "none" }}
       >
-        <ul className="text-center text-white text-2xl space-y-6">
+        <ul className="text-center text-yellow-400 font-bold text-3xl space-y-20">
           <motion.li
             whileHover={{ scale: 1.2 }}
             whileTap={{ scale: 0.9 }}
             className="cursor-pointer"
+            onClick={() => {
+              router.push("/");
+              setOpen(false);
+            }}
           >
-            Home
+            HOME
           </motion.li>
           <motion.li
             whileHover={{ scale: 1.2 }}
             whileTap={{ scale: 0.9 }}
             className="cursor-pointer"
+            onClick={() => {
+              router.push("/about");
+              setOpen(false);
+            }}
           >
-            About
+            ABOUT
           </motion.li>
           <motion.li
             whileHover={{ scale: 1.2 }}
             whileTap={{ scale: 0.9 }}
             className="cursor-pointer"
+            onClick={() => {
+              router.push("/blog");
+              setOpen(false);
+            }}
           >
-            Services
+            BLOG
           </motion.li>
           <motion.li
             whileHover={{ scale: 1.2 }}
             whileTap={{ scale: 0.9 }}
             className="cursor-pointer"
+            onClick={() => {
+              router.push("/faq");
+              setOpen(false);
+            }}
           >
-            Contact
+            FAQ
+          </motion.li>
+          <motion.li
+            whileHover={{ scale: 1.2 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => {
+              router.push("/nearby");
+              setOpen(false);
+            }}
+            className="cursor-pointer"
+          >
+            NEARBY SHARE
           </motion.li>
         </ul>
       </motion.div>

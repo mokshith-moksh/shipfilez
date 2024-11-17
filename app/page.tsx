@@ -13,10 +13,13 @@ export default function Home() {
       }}
     >
       <div className="w-full md:w-1/2 ">
-        <div className="absolute top-20 px-14 text-wrap md:hidden">
+        <div className="absolute top-20 px-14 text-wrap -my-4 md:hidden">
           <h1 className="text-2xl font-bold text-white tracking-tight leading-snug">
             Share Files Instantly, Without Limits or Servers.
           </h1>
+          <h2 className="text-lg md:text-xl lg:text-2xl font-light text-gray-300 tracking-tight leading-relaxed">
+            Transfer files securely and seamlessly without a middleman.
+          </h2>
         </div>
         <FileComponent />
       </div>
