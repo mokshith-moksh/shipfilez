@@ -1,15 +1,17 @@
 "use client";
 import Model from "@/components/Model";
-import React, { useState } from "react";
+import React from "react";
 
 const Page = () => {
-  const [ShowPopUp, setShowPopUp] = useState<boolean>(false);
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-red-500">
-      <button onClick={() => setShowPopUp((prev) => !prev)}>
-        Enter Shared Code
-      </button>
-      {ShowPopUp && <Model />}
+    <div
+      className="relative mx-auto flex h-screen w-screen bg-slate-900 bg-cover bg-center"
+      style={{
+        backgroundImage:
+          "url('https://res.cloudinary.com/da3j9iqkp/image/upload/v1730989736/iqgxciixwtfburooeffb.svg')",
+      }}
+    >
+      <Model />
     </div>
   );
 };
