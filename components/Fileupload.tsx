@@ -7,7 +7,6 @@ const FileComponent = () => {
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
   const handleFileChange = (files: File[]) => {
-    console.log(files);
     setUploadedFiles((prevFiles) => [...prevFiles, ...files]);
   };
 

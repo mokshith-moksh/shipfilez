@@ -173,6 +173,8 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
       setIsConnected(true);
       const initialMessage = {
         event: "EVENT_REQUEST_SHARE_CODE",
+        fileName: files.map((file) => file.name),
+        fileLenght: files.length,
       };
       socket.send(JSON.stringify(initialMessage));
     };
@@ -181,7 +183,6 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
       if (RES_MSG.event === "EVENT_REQUEST_SHARE_CODE") {
         setShareCode(RES_MSG.shareCode);
       } else if (RES_MSG.event === "EVENT_REQUEST_NEAR_BY_SHARE_CODE") {
-        console.log("NearByShareCode -----> ", RES_MSG.nearByShareCode);
         setNearByShareCode(RES_MSG.nearByShareCode);
       } else if (RES_MSG.event === "EVENT_REQUEST_HOST_TO_SEND_OFFER") {
         clientCodeRef.current = RES_MSG.clientId;
@@ -216,50 +217,50 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
   }, [files]);
 
   return (
-    <div className="flex flex-col-reverse md:flex-row-reverse size-full items-center justify-end md:items-start md:justify-center gap-8 pt-16 text-white">
-      <div className="flex flex-col w-[70%] md:w-[40%] gap-6">
-        <div className="flex items-center justify-start gap-3 text-xl font-bold">
+    <div className="flex flex-col-reverse md:flex-row-reverse w-full h-auto items-center justify-end md:items-start md:justify-center gap-8 px-4 md:px-8 pt-8 md:pt-16 text-white">
+      {/* Text Container */}
+      <div className="flex flex-col w-full md:w-[40%] gap-6">
+        <div className="flex items-center gap-3 text-lg md:text-xl font-bold">
           {isConnected ? (
-            <BiSolidCircle className="border-[#14992c] text-[#24cc3e]" />
+            <BiSolidCircle className="text-[#24cc3e]" />
           ) : (
             <BiSolidCircle className="text-[#f34f4f]" />
-          )}{" "}
+          )}
           <p>Status</p>
         </div>
 
         <div className="flex flex-col gap-6">
           {shareCode ? (
-            <>
-              <div className="flex justify-center gap-3 ">
+            <div className="flex flex-col gap-3">
+              <div className="flex justify-center items-center gap-3">
                 <Input
                   ref={urlRef}
-                  className="flex h-10 w-[85%] rounded-lg bg-white px-1 text-lg md:text-xl text-black"
+                  className="h-10 w-full md:w-[85%] rounded-lg bg-white px-2 text-sm md:text-lg text-black"
                   value={`localhost:3000/receiver?code=${shareCode}`}
                   readOnly
                 />
                 <button
-                  className="w-fit rounded-md text-3xl text-white"
+                  className="rounded-md text-xl md:text-3xl text-white"
                   onClick={() => CopyText(urlRef.current!.value)}
                 >
                   <BsCopy />
                 </button>
               </div>
-            </>
+            </div>
           ) : (
-            <div>Waiting for message...</div>
+            <div className="text-sm md:text-base">Waiting for message...</div>
           )}
           <div className="flex flex-col gap-5">
             {!NearByShareCode ? (
               <Button
-                // eslint-disable-next-line tailwindcss/no-custom-classname
-                className="text-md h-11 w-60 bg-yellow-400 font-bold text-black hover:bg-yellow-500"
+                className="text-sm md:text-md h-10 md:h-11 w-full md:w-60 bg-yellow-400 font-bold text-black hover:bg-yellow-500"
                 onClick={RequestNearByShareCode}
               >
                 Share with nearby devices
               </Button>
             ) : (
               <Button
-                className="flex h-14 cursor-pointer items-center justify-center rounded-lg bg-yellow-400 text-xl font-semibold text-black hover:bg-yellow-500"
+                className="h-12 md:h-14 w-full md:w-fit cursor-pointer items-center justify-center rounded-lg bg-yellow-400 text-base md:text-xl font-semibold text-black hover:bg-yellow-500"
                 ref={shareCodeCopyRef}
                 onClick={() => CopyText(NearByShareCode)}
               >
@@ -267,19 +268,19 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
               </Button>
             )}
           </div>
-          <Progress value={progress} />
+          <Progress value={progress} className="w-full" />
         </div>
       </div>
 
-      <div className="relative">
+      {/* QR Code Container */}
+      <div className="relative flex items-center justify-center w-full md:w-auto">
         <QRCode
-          size={250}
           bgColor="#ffffff"
           fgColor="#000000"
           style={{ height: "auto", maxWidth: "100%", width: "100%" }}
           value={`https://moksh-portfolio-com.netlify.app`}
-          viewBox={`0 0 256 256`}
-          className="w-fit h-fit"
+          viewBox="0 0 256 256"
+          className="w-40 h-40 md:w-64 md:h-64"
         />
       </div>
     </div>

@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { BiSolidCircle } from "react-icons/bi";
 let streamSaver: any;
 
 interface typeFileDetail {
-  fileName: string;
+  fileName: string[];
   fileLength: number;
 }
 
@@ -67,7 +68,6 @@ export default function Page() {
           fileLength: parsedMessage.fileLength,
         });
         shareCodeRef.current = parsedMessage.sharedCode;
-        console.log("EVENT_REQUEST_CLIENT_ID-Respone", shareCodeRef.current);
       }
       if (parsedMessage.event === "EVENT_OFFER") {
         const rtcConfiguration = {
@@ -146,7 +146,6 @@ export default function Page() {
                 const downloadPercent =
                   (receivedFileSize / receivedFileMetadata.fileSize) * 100;
                 setpercentage(downloadPercent.toFixed(2));
-                console.log(`Downloaded: ${downloadPercent.toFixed(2)}%`);
               }
             }
           };
@@ -157,10 +156,6 @@ export default function Page() {
           await pc.setRemoteDescription(parsedMessage.offer);
           const answer = await pc.createAnswer();
           await pc.setLocalDescription(answer);
-
-          // Send the answer back to the host
-          console.log("EVENT_ANSWER", shareCodeRef.current);
-          console.log("EVENT_ANSWER", clientCodeRef.current);
           socket.send(
             JSON.stringify({
               event: "EVENT_ANSWER",
@@ -195,23 +190,100 @@ export default function Page() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   return (
-    <div>
-      {isConnected ? "Connected" : "Disconnected"}
-      <div className="h-11 w-20">
-        fileDetails
-        <div>{fileDetail && <div>{JSON.stringify(fileDetail)}</div>}</div>
-      </div>
-      <div>
+    <div
+      className="relative mx-auto flex h-screen w-screen bg-slate-900 bg-cover bg-center"
+      style={{
+        backgroundImage:
+          "url('https://res.cloudinary.com/da3j9iqkp/image/upload/v1730989736/iqgxciixwtfburooeffb.svg')",
+      }}
+    >
+      {/* Left Section */}
+      <div className="w-full md:w-1/2 flex flex-col justify-center items-center gap-10 px-4 md:px-10">
+        {/* Connection Status */}
+        <h2 className="text-white text-2xl md:hidden font-extrabold">
+          Receive Files Seamlessly
+        </h2>
+        <div className="text-center text-white text-lg sm:text-xl font-semibold">
+          {isConnected ? (
+            <div className="flex gap-2 justify-center items-center">
+              <BiSolidCircle className="text-[#24cc3e]" />
+              <span>Connected</span>
+            </div>
+          ) : (
+            <div className="flex gap-2 justify-center items-center">
+              <BiSolidCircle className="text-[#f34f4f]" />
+              <span>Disconnected</span>
+            </div>
+          )}
+        </div>
+
+        {/* File Details */}
+        <div className="h-24 w-full md:w-3/4 bg-gray-800 rounded-md p-4 text-white overflow-auto">
+          <h3 className="font-bold text-lg">File Details</h3>
+          <div className="mt-2 text-sm">
+            {fileDetail ? (
+              <div className="flex gap-3 flex-wrap flex-1">
+                {fileDetail.fileName.map((name) => (
+                  <p key={name}>{name}</p>
+                ))}
+              </div>
+            ) : (
+              <p>No file selected yet.</p>
+            )}
+          </div>
+        </div>
+
+        {/* Download Button */}
         <button
           onClick={requestHostToSendOffer}
-          className="h-5 w-10 bg-amber-400 p-2 font-bold text-black"
+          className="h-10 w-32 bg-amber-400 rounded-md text-black font-bold shadow-lg hover:bg-amber-500 transition"
         >
           Download
         </button>
+
+        {/* Percentage Progress */}
+        <div className="text-white text-lg sm:text-2xl font-semibold">
+          Progress: {percentage}%
+          <div>{percentage === "100" && <div>Scanning file......</div>}</div>
+        </div>
       </div>
-      <div className="text-4xl">Percentage ------- {percentage}%</div>
+
+      {/* Right Section */}
+      <div className="hidden md:flex w-1/2 flex-col justify-center items-start px-10 gap-8">
+        {/* Title */}
+        <h2 className="text-white text-3xl lg:text-4xl font-extrabold">
+          Receive Files Seamlessly
+        </h2>
+        {/* Description */}
+        <p className="text-gray-300 text-base lg:text-lg leading-relaxed">
+          Share and receive files instantly without interruptions. Ensure
+          private, secure, and blazing-fast file transfers with our peer-to-peer
+          technology. Whether it’s documents, media, or any data, our platform
+          has got you covered.
+        </p>
+        {/* Additional Features */}
+        <div className="flex flex-col gap-4 text-gray-200 text-sm lg:text-base">
+          <div className="flex items-center gap-2">
+            <span role="img" aria-label="secure">
+              🔒
+            </span>
+            <span>100% End-to-End Encryption</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span role="img" aria-label="speed">
+              ⚡
+            </span>
+            <span>Fast and Reliable Transfers</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span role="img" aria-label="file">
+              📂
+            </span>
+            <span>No File Size Restrictions</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

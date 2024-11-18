@@ -1,12 +1,12 @@
 "use client";
 import FileComponent from "@/components/Fileupload";
 import Wave from "react-wavify";
-import Image from "next/image";
 import { Midground } from "@/components/Midground";
 
 export default function Home() {
   return (
     <div>
+      {/* Background Section */}
       <div
         className="relative mx-auto flex h-screen w-screen bg-slate-900 bg-cover bg-center"
         style={{
@@ -14,30 +14,34 @@ export default function Home() {
             "url('https://res.cloudinary.com/da3j9iqkp/image/upload/v1730989736/iqgxciixwtfburooeffb.svg')",
         }}
       >
-        <div className="w-full md:w-1/2 ">
-          <div className="absolute top-20 px-14 text-wrap -my-4 md:hidden">
-            <h1 className="text-2xl font-bold text-white tracking-tight leading-snug">
+        {/* Left Section */}
+        <div className="w-full md:w-1/2 px-4 md:px-0">
+          {/* Mobile View Text */}
+          <div className="absolute top-20 px-6 text-center md:hidden">
+            <h1 className="text-xl sm:text-2xl font-bold text-white leading-snug">
               Share Files Instantly, Without Limits or Servers.
             </h1>
-            <h2 className="text-lg md:text-xl lg:text-2xl font-light text-gray-300 tracking-tight leading-relaxed">
+            <h2 className="text-sm sm:text-base font-light text-gray-300 leading-relaxed">
               Transfer files securely and seamlessly without a middleman.
             </h2>
           </div>
           <FileComponent />
         </div>
+
+        {/* Right Section */}
         <div className="hidden md:flex w-1/2 items-start justify-center pt-20">
-          <div className="flex flex-col px-6 md:px-12 lg:px-20 gap-8 h-[50%] mt-20 text-center md:text-left">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-snug">
+          <div className="flex flex-col px-8 md:px-12 lg:px-20 gap-8 h-[50%] mt-20 text-center md:text-left">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-snug">
               Share Files Instantly, Without Limits or Servers.
             </h1>
-
-            <h2 className="text-lg md:text-xl lg:text-2xl font-light text-gray-300 tracking-tight leading-relaxed">
+            <h2 className="text-sm sm:text-lg md:text-xl lg:text-2xl font-light text-gray-300 leading-relaxed">
               Transfer files securely and seamlessly without a middleman.
               Perfect for quick, private sharing.
             </h2>
 
-            <div className="flex flex-col md:flex-row gap-6 md:gap-12 justify-center md:justify-start items-center md:items-start text-white text-base md:text-lg">
-              <div className="flex flex-col gap-4 items-center md:items-start">
+            {/* Feature List */}
+            <div className="flex flex-col sm:flex-row gap-6 sm:gap-12 justify-center md:justify-start items-center md:items-start text-white text-sm sm:text-base md:text-lg">
+              <div className="flex flex-col gap-4 items-center sm:items-start">
                 <p className="flex items-center gap-2">
                   <span role="img" aria-label="folder">
                     📂
@@ -51,8 +55,7 @@ export default function Home() {
                   <span>End-to-End Encryption</span>
                 </p>
               </div>
-
-              <div className="flex flex-col gap-4 items-center md:items-start">
+              <div className="flex flex-col gap-4 items-center sm:items-start">
                 <p className="flex items-center gap-2">
                   <span role="img" aria-label="speed">
                     ⚡
@@ -70,20 +73,23 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="absolute bottom-0 z-30 h-[30vh] w-full overflow-hidden">
+        {/* Wave Component */}
+        <div className="absolute bottom-0 z-30 h-[20vh] sm:h-[25vh] md:h-[30vh] w-full overflow-hidden">
           <Wave
-            style={{ height: "30vh" }}
+            style={{ height: "100%" }}
             fill="#052454"
             paused={false}
             options={{
-              height: 30,
-              amplitude: 20,
-              speed: 0.5,
-              points: 2,
+              height: 20,
+              amplitude: 15,
+              speed: 0.3,
+              points: 3,
             }}
           />
         </div>
       </div>
+
+      {/* Midground Section */}
       <div className="w-screen h-screen bg-[#062354] relative">
         <Midground />
       </div>
