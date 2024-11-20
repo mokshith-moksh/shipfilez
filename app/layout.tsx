@@ -31,7 +31,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center overflow-x-hidden">
           <Nav />
           {children}
           <Toaster />
