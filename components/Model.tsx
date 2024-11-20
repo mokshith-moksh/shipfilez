@@ -15,7 +15,7 @@ const Model = () => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 50 }}
       transition={{ duration: 0.5 }}
-      className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50"
+      className="absolute inset-0 flex items-center justify-center bg-black/50"
     >
       <div className="w-full max-w-sm rounded-lg bg-white p-8 shadow-lg">
         <h2 className="mb-4 text-center text-2xl font-semibold">

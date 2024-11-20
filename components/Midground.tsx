@@ -3,34 +3,34 @@ import Image from "next/image";
 
 export const Midground = () => {
   return (
-    <div className="w-screen h-auto flex flex-col justify-center items-center gap-1 px-4 md:px-10">
-      <h1 className="text-3xl md:text-5xl mb-8 md:mb-16 font-black text-white underline underline-offset-8">
+    <div className="flex h-auto w-screen flex-col items-center justify-center gap-1 px-4 md:px-10">
+      <h1 className="mb-8 text-3xl font-black text-white underline underline-offset-8 md:mb-16 md:text-5xl">
         How it Works?
       </h1>
-      <div className="w-full flex justify-center">
+      <div className="flex w-full justify-center">
         <Image
           src="/Frame-10.svg"
           alt="frame"
           width={600}
           height={400}
-          className="max-w-full md:max-w-[80vw] max-h-[40vh] md:max-h-[50vh] object-contain"
+          className="max-h-[40vh] max-w-full object-contain md:max-h-[50vh] md:max-w-[80vw]"
         />
       </div>
-      <div className="flex flex-col md:flex-row flex-wrap justify-center gap-8 md:gap-12 mt-8 md:mt-12">
+      <div className="mt-8 flex flex-col flex-wrap justify-center gap-8 md:mt-12 md:flex-row md:gap-12">
         {/* Direct Connection */}
-        <div className="flex items-start gap-4 md:gap-6 max-w-xs">
+        <div className="flex max-w-xs items-start gap-4 md:gap-6">
           <Image
             src="/ball.svg"
             alt="ball"
             width={60}
             height={60}
-            className="w-12 h-12 md:w-20 md:h-20"
+            className="size-12 md:size-20"
           />
           <div>
-            <div className="text-lg md:text-2xl font-bold text-white">
+            <div className="text-lg font-bold text-white md:text-2xl">
               Direct Connection
             </div>
-            <p className="text-gray-300 text-xs md:text-sm tracking-tight leading-relaxed">
+            <p className="text-xs leading-relaxed tracking-tight text-gray-300 md:text-sm">
               Files are shared directly between devices, bypassing any
               third-party servers, ensuring faster transfers and complete
               privacy.
@@ -38,38 +38,38 @@ export const Midground = () => {
           </div>
         </div>
         {/* No File Size Limit */}
-        <div className="flex items-start gap-4 md:gap-6 max-w-xs">
+        <div className="flex max-w-xs items-start gap-4 md:gap-6">
           <Image
             src="/turbo.svg"
             alt="turbo"
             width={60}
             height={60}
-            className="w-12 h-12 md:w-20 md:h-20"
+            className="size-12 md:size-20"
           />
           <div>
-            <div className="text-lg md:text-2xl font-bold text-white">
+            <div className="text-lg font-bold text-white md:text-2xl">
               No File Size Limit
             </div>
-            <p className="text-gray-300 text-xs md:text-sm tracking-tight leading-relaxed">
+            <p className="text-xs leading-relaxed tracking-tight text-gray-300 md:text-sm">
               Share files of any size, from small documents to large videos,
               without restrictions or the need for compression.
             </p>
           </div>
         </div>
         {/* Complete Encryption */}
-        <div className="flex items-start gap-4 md:gap-6 max-w-xs">
+        <div className="flex max-w-xs items-start gap-4 md:gap-6">
           <Image
             src="/shell.svg"
             alt="shell"
             width={60}
             height={60}
-            className="w-12 h-12 md:w-20 md:h-20"
+            className="size-12 md:size-20"
           />
           <div>
-            <div className="text-lg md:text-2xl font-bold text-white">
+            <div className="text-lg font-bold text-white md:text-2xl">
               Complete Encryption
             </div>
-            <p className="text-gray-300 text-xs md:text-sm tracking-tight leading-relaxed">
+            <p className="text-xs leading-relaxed tracking-tight text-gray-300 md:text-sm">
               Your files are fully encrypted during transfer, ensuring that only
               the sender and receiver can access them.
             </p>

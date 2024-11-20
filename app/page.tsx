@@ -30,7 +30,7 @@ export default function Home() {
 
         {/* Right Section */}
         <div className="hidden w-1/2 items-start justify-center pt-20 md:flex">
-          <div className="mt-20 flex h-[50%] flex-col gap-8 px-8 text-center md:px-12 md:text-left lg:px-20">
+          <div className="mt-20 flex h-1/2 flex-col gap-8 px-8 text-center md:px-12 md:text-left lg:px-20">
             <h1 className="text-2xl font-extrabold leading-snug text-white sm:text-3xl md:text-4xl lg:text-5xl">
               Share Files Instantly, Without Limits or Servers.
             </h1>

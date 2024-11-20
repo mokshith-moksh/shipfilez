@@ -12,7 +12,7 @@ export const HandBurger = () => {
     <motion.div className="md:hidden ">
       {/* Hamburger/Close Icon */}
       <motion.div
-        className="text-yellow-400 z-50 absolute right-6 top-4 text-4xl cursor-pointer"
+        className="absolute right-6 top-4 z-50 cursor-pointer text-4xl text-yellow-400"
         onClick={() => setOpen(!open)}
         initial={{ rotate: 0 }}
         animate={{ rotate: open ? 90 : 0 }}
@@ -23,7 +23,7 @@ export const HandBurger = () => {
 
       {/* Mobile Menu */}
       <motion.div
-        className="absolute z-40 right-0 top-0 w-[100vw] h-[100vh] bg-[#062354] opacity-90 flex flex-col items-center justify-center gap-8 rounded-l-lg"
+        className="absolute right-0 top-0 z-40 flex h-screen w-screen flex-col items-center justify-center gap-8 rounded-l-lg bg-[#062354] opacity-90"
         initial={{ x: "100%" }}
         animate={{ x: open ? "0%" : "100%" }}
         transition={{
@@ -33,7 +33,7 @@ export const HandBurger = () => {
         }}
         style={{ pointerEvents: open ? "auto" : "none" }}
       >
-        <ul className="text-center text-yellow-400 font-bold text-3xl space-y-20">
+        <ul className="space-y-20 text-center text-3xl font-bold text-yellow-400">
           <motion.li
             whileHover={{ scale: 1.2 }}
             whileTap={{ scale: 0.9 }}
