@@ -15,28 +15,28 @@ const Model = () => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 50 }}
       transition={{ duration: 0.5 }}
-      className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50"
+      className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50"
     >
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-sm w-full">
-        <h2 className="text-2xl font-semibold text-center mb-4">
-          Enter the code from the device you're connecting with
+      <div className="w-full max-w-sm rounded-lg bg-white p-8 shadow-lg">
+        <h2 className="mb-4 text-center text-2xl font-semibold">
+          Enter the code from the device you are connecting with
         </h2>
-        <p className="text-gray-600 text-sm text-center mb-6">
+        <p className="mb-6 text-center text-sm text-gray-600">
           To access the shared content, please enter the unique code displayed
           on the device that is sharing.
         </p>
         <Input
-          type="text"
+          type="number"
           placeholder="Enter the code"
           onChange={(e) => {
             setCode(e.target.value);
           }}
-          className="w-full mb-4"
+          className="mb-4 w-full"
         />
         <Button
           type="button"
           onClick={() => router.push(`/receiver?code=${code}`)}
-          className="w-full bg-[#062354] text-white py-2 px-6 rounded-lg shadow-lg hover:bg-[#062354e6] transition duration-300"
+          className="w-full rounded-lg bg-[#062354] px-6 py-2 text-white shadow-lg transition duration-300 hover:bg-[#062354e6]"
         >
           Confirm
         </Button>

@@ -15,13 +15,13 @@ export default function Home() {
         }}
       >
         {/* Left Section */}
-        <div className="w-full md:w-1/2 px-4 md:px-0">
+        <div className="w-full px-4 md:w-1/2 md:px-0">
           {/* Mobile View Text */}
           <div className="absolute top-20 px-6 text-center md:hidden">
-            <h1 className="text-xl sm:text-2xl font-bold text-white leading-snug">
+            <h1 className="text-xl font-bold leading-snug text-white sm:text-2xl">
               Share Files Instantly, Without Limits or Servers.
             </h1>
-            <h2 className="text-sm sm:text-base font-light text-gray-300 leading-relaxed">
+            <h2 className="text-sm font-light leading-relaxed text-gray-300 sm:text-base">
               Transfer files securely and seamlessly without a middleman.
             </h2>
           </div>
@@ -29,19 +29,19 @@ export default function Home() {
         </div>
 
         {/* Right Section */}
-        <div className="hidden md:flex w-1/2 items-start justify-center pt-20">
-          <div className="flex flex-col px-8 md:px-12 lg:px-20 gap-8 h-[50%] mt-20 text-center md:text-left">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-snug">
+        <div className="hidden w-1/2 items-start justify-center pt-20 md:flex">
+          <div className="mt-20 flex h-[50%] flex-col gap-8 px-8 text-center md:px-12 md:text-left lg:px-20">
+            <h1 className="text-2xl font-extrabold leading-snug text-white sm:text-3xl md:text-4xl lg:text-5xl">
               Share Files Instantly, Without Limits or Servers.
             </h1>
-            <h2 className="text-sm sm:text-lg md:text-xl lg:text-2xl font-light text-gray-300 leading-relaxed">
+            <h2 className="text-sm font-light leading-relaxed text-gray-300 sm:text-lg md:text-xl lg:text-2xl">
               Transfer files securely and seamlessly without a middleman.
               Perfect for quick, private sharing.
             </h2>
 
             {/* Feature List */}
-            <div className="flex flex-col sm:flex-row gap-6 sm:gap-12 justify-center md:justify-start items-center md:items-start text-white text-sm sm:text-base md:text-lg">
-              <div className="flex flex-col gap-4 items-center sm:items-start">
+            <div className="flex flex-col items-center justify-center gap-6 text-sm text-white sm:flex-row sm:gap-12 sm:text-base md:items-start md:justify-start md:text-lg">
+              <div className="flex flex-col items-center gap-4 sm:items-start">
                 <p className="flex items-center gap-2">
                   <span role="img" aria-label="folder">
                     📂
@@ -55,7 +55,7 @@ export default function Home() {
                   <span>End-to-End Encryption</span>
                 </p>
               </div>
-              <div className="flex flex-col gap-4 items-center sm:items-start">
+              <div className="flex flex-col items-center gap-4 sm:items-start">
                 <p className="flex items-center gap-2">
                   <span role="img" aria-label="speed">
                     ⚡
@@ -74,7 +74,7 @@ export default function Home() {
         </div>
 
         {/* Wave Component */}
-        <div className="absolute bottom-0 z-30 h-[20vh] sm:h-[25vh] md:h-[30vh] w-full overflow-hidden">
+        <div className="absolute bottom-0 z-30 h-[20vh] w-full overflow-hidden sm:h-[25vh] md:h-[30vh]">
           <Wave
             style={{ height: "100%" }}
             fill="#052454"
@@ -90,7 +90,7 @@ export default function Home() {
       </div>
 
       {/* Midground Section */}
-      <div className="w-screen h-screen bg-[#062354] relative">
+      <div className="relative h-screen w-screen bg-[#062354]">
         <Midground />
       </div>
     </div>

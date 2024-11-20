@@ -167,7 +167,7 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
 
   useEffect(() => {
     if (socketRef.current) return;
-    const socket = new WebSocket("ws://localhost:8080");
+    const socket = new WebSocket("wss://shipfilez.educlout.com");
     socketRef.current = socket;
     socket.onopen = () => {
       setIsConnected(true);
@@ -217,10 +217,10 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
   }, [files]);
 
   return (
-    <div className="flex flex-col-reverse md:flex-row-reverse w-full h-auto items-center justify-end md:items-start md:justify-center gap-8 px-4 md:px-8 pt-8 md:pt-16 text-white">
+    <div className="flex h-auto w-full flex-col-reverse items-center justify-end gap-8 px-4 pt-8 text-white md:flex-row-reverse md:items-start md:justify-center md:px-8 md:pt-16">
       {/* Text Container */}
-      <div className="flex flex-col w-full md:w-[40%] gap-6">
-        <div className="flex items-center gap-3 text-lg md:text-xl font-bold">
+      <div className="flex w-full flex-col gap-6 md:w-2/5">
+        <div className="flex items-center gap-3 text-lg font-bold md:text-xl">
           {isConnected ? (
             <BiSolidCircle className="text-[#24cc3e]" />
           ) : (
@@ -232,15 +232,15 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
         <div className="flex flex-col gap-6">
           {shareCode ? (
             <div className="flex flex-col gap-3">
-              <div className="flex justify-center items-center gap-3">
+              <div className="flex items-center justify-center gap-3">
                 <Input
                   ref={urlRef}
-                  className="h-10 w-full md:w-[85%] rounded-lg bg-white px-2 text-sm md:text-lg text-black"
+                  className="h-10 w-full rounded-lg bg-white px-2 text-sm text-black md:w-[85%] md:text-lg"
                   value={`localhost:3000/receiver?code=${shareCode}`}
                   readOnly
                 />
                 <button
-                  className="rounded-md text-xl md:text-3xl text-white"
+                  className="rounded-md text-xl text-white md:text-3xl"
                   onClick={() => CopyText(urlRef.current!.value)}
                 >
                   <BsCopy />
@@ -253,14 +253,15 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
           <div className="flex flex-col gap-5">
             {!NearByShareCode ? (
               <Button
-                className="text-sm md:text-md h-10 md:h-11 w-full md:w-60 bg-yellow-400 font-bold text-black hover:bg-yellow-500"
+                // eslint-disable-next-line tailwindcss/no-custom-classname
+                className="md:text-md h-10 w-full bg-yellow-400 text-sm font-bold text-black hover:bg-yellow-500 md:h-11 md:w-60"
                 onClick={RequestNearByShareCode}
               >
                 Share with nearby devices
               </Button>
             ) : (
               <Button
-                className="h-12 md:h-14 w-full md:w-fit cursor-pointer items-center justify-center rounded-lg bg-yellow-400 text-base md:text-xl font-semibold text-black hover:bg-yellow-500"
+                className="h-12 w-full cursor-pointer items-center justify-center rounded-lg bg-yellow-400 text-base font-semibold text-black hover:bg-yellow-500 md:h-14 md:w-fit md:text-xl"
                 ref={shareCodeCopyRef}
                 onClick={() => CopyText(NearByShareCode)}
               >
@@ -268,19 +269,19 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
               </Button>
             )}
           </div>
-          <Progress value={progress} className="w-full" />
+          <Progress value={progress} className="w-full text-yellow-400" />
         </div>
       </div>
 
       {/* QR Code Container */}
-      <div className="relative flex items-center justify-center w-full md:w-auto">
+      <div className="relative flex w-full items-center justify-center md:w-auto">
         <QRCode
           bgColor="#ffffff"
           fgColor="#000000"
           style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-          value={`https://moksh-portfolio-com.netlify.app`}
+          value={`https://shipfilez.com/receiver?code=${shareCode}`}
           viewBox="0 0 256 256"
-          className="w-40 h-40 md:w-64 md:h-64"
+          className="size-40 md:size-64"
         />
       </div>
     </div>

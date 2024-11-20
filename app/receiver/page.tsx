@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { BiSolidCircle } from "react-icons/bi";
+import { Progress } from "@/components/ui/progress";
 let streamSaver: any;
 
 interface typeFileDetail {
@@ -47,7 +48,7 @@ export default function Page() {
         });
     }
     if (socketRef.current) return;
-    const socket = new WebSocket("ws://localhost:8080");
+    const socket = new WebSocket("wss://shipfilez.educlout.com");
     socketRef.current = socket;
     socket.onopen = () => {
       setIsConnected(true);
@@ -199,19 +200,24 @@ export default function Page() {
       }}
     >
       {/* Left Section */}
-      <div className="w-full md:w-1/2 flex flex-col justify-center items-center gap-10 px-4 md:px-10">
+      <div className="flex w-full flex-col items-start justify-center gap-10 px-10 md:w-1/2 md:px-10">
         {/* Connection Status */}
-        <h2 className="text-white text-2xl md:hidden font-extrabold">
+        <h2 className="text-2xl font-extrabold text-white md:hidden">
           Receive Files Seamlessly
         </h2>
-        <div className="text-center text-white text-lg sm:text-xl font-semibold">
+        <p className="text-base leading-relaxed text-gray-300 md:hidden lg:text-lg">
+          Share and receive files instantly without interruptions. Ensure
+          private, secure, and blazing-fast file transfers with our peer-to-peer
+          technology..
+        </p>
+        <div className="text-center text-lg font-semibold text-white sm:text-xl">
           {isConnected ? (
-            <div className="flex gap-2 justify-center items-center">
+            <div className="flex items-center justify-center gap-2">
               <BiSolidCircle className="text-[#24cc3e]" />
               <span>Connected</span>
             </div>
           ) : (
-            <div className="flex gap-2 justify-center items-center">
+            <div className="flex items-center justify-center gap-2">
               <BiSolidCircle className="text-[#f34f4f]" />
               <span>Disconnected</span>
             </div>
@@ -219,11 +225,11 @@ export default function Page() {
         </div>
 
         {/* File Details */}
-        <div className="h-24 w-full md:w-3/4 bg-gray-800 rounded-md p-4 text-white overflow-auto">
-          <h3 className="font-bold text-lg">File Details</h3>
+        <div className="h-24 w-full overflow-auto rounded-md bg-gray-800 p-4 text-white md:w-3/4">
+          <h3 className="text-lg font-bold">File Details</h3>
           <div className="mt-2 text-sm">
             {fileDetail ? (
-              <div className="flex gap-3 flex-wrap flex-1">
+              <div className="flex flex-1 flex-wrap gap-3">
                 {fileDetail.fileName.map((name) => (
                   <p key={name}>{name}</p>
                 ))}
@@ -237,33 +243,33 @@ export default function Page() {
         {/* Download Button */}
         <button
           onClick={requestHostToSendOffer}
-          className="h-10 w-32 bg-amber-400 rounded-md text-black font-bold shadow-lg hover:bg-amber-500 transition"
+          className="h-10 w-32 rounded-md bg-amber-400 font-bold text-black shadow-lg transition hover:bg-amber-500"
         >
           Download
         </button>
 
         {/* Percentage Progress */}
-        <div className="text-white text-lg sm:text-2xl font-semibold">
-          Progress: {percentage}%
-          <div>{percentage === "100" && <div>Scanning file......</div>}</div>
+        <div className="flex w-full flex-col items-center justify-center gap-4 text-lg font-semibold text-white sm:text-2xl md:w-3/4">
+          <Progress value={Number(percentage)} />
+          {percentage}%
         </div>
       </div>
 
       {/* Right Section */}
-      <div className="hidden md:flex w-1/2 flex-col justify-center items-start px-10 gap-8">
+      <div className="hidden w-1/2 flex-col items-start justify-center gap-8 px-10 md:flex">
         {/* Title */}
-        <h2 className="text-white text-3xl lg:text-4xl font-extrabold">
+        <h2 className="text-3xl font-extrabold text-white lg:text-4xl">
           Receive Files Seamlessly
         </h2>
         {/* Description */}
-        <p className="text-gray-300 text-base lg:text-lg leading-relaxed">
+        <p className="text-base leading-relaxed text-gray-300 lg:text-lg">
           Share and receive files instantly without interruptions. Ensure
           private, secure, and blazing-fast file transfers with our peer-to-peer
           technology. Whether it’s documents, media, or any data, our platform
           has got you covered.
         </p>
         {/* Additional Features */}
-        <div className="flex flex-col gap-4 text-gray-200 text-sm lg:text-base">
+        <div className="flex flex-col gap-4 text-sm text-gray-200 lg:text-base">
           <div className="flex items-center gap-2">
             <span role="img" aria-label="secure">
               🔒

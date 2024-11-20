@@ -17,7 +17,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Just Share IT",
+  title: "Just Ship IT",
   description: "Share the file with full privacy",
 };
 
