@@ -236,7 +236,7 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
                 <Input
                   ref={urlRef}
                   className="h-10 w-full rounded-lg bg-white px-2 text-sm text-black md:w-[85%] md:text-lg"
-                  value={`localhost:3000/receiver?code=${shareCode}`}
+                  value={`shipfilez.vercel.app/receiver?code=${shareCode}`}
                   readOnly
                 />
                 <button
