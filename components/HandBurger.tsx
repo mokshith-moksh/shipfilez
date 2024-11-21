@@ -61,22 +61,22 @@ export const HandBurger = () => {
             whileTap={{ scale: 0.9 }}
             className="cursor-pointer"
             onClick={() => {
-              router.push("/blog");
+              router.push("/contact");
               setOpen(false);
             }}
           >
-            BLOG
+            CONTACT
           </motion.li>
           <motion.li
             whileHover={{ scale: 1.2 }}
             whileTap={{ scale: 0.9 }}
             className="cursor-pointer"
             onClick={() => {
-              router.push("/faq");
+              router.push("/privacy");
               setOpen(false);
             }}
           >
-            FAQ
+            PRIVACY
           </motion.li>
           <motion.li
             whileHover={{ scale: 1.2 }}

@@ -274,14 +274,14 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
       </div>
 
       {/* QR Code Container */}
-      <div className="relative flex w-full items-center justify-center md:w-auto">
+      <div className="relative flex w-[70%] items-center justify-center md:w-auto">
         <QRCode
           bgColor="#ffffff"
           fgColor="#000000"
-          style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+          style={{ height: "auto", width: "100%" }}
           value={`https://shipfilez.vercel.app/receiver?code=${shareCode}`}
           viewBox="0 0 256 256"
-          className="size-40 md:size-64"
+          className="w-1/2 sm:w-2/3 md:w-1/3 lg:w-1/4 xl:w-1/5"
         />
       </div>
     </div>

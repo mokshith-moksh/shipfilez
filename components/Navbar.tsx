@@ -81,11 +81,11 @@ const SlideTabs = () => {
       <Tab setPosition={setPosition} link="/about">
         <a href="/about">ABOUT</a>
       </Tab>
-      <Tab setPosition={setPosition} link="/blog">
-        <a href="/blog">BLOG</a>
+      <Tab setPosition={setPosition} link="/contact">
+        <a href="/contact">CONTACT</a>
       </Tab>
-      <Tab setPosition={setPosition} link="/faq">
-        <a href="/faq">FAQ</a>
+      <Tab setPosition={setPosition} link="/privacy">
+        <a href="/privacy">privacy</a>
       </Tab>
       <Tab setPosition={setPosition} link="/nearby">
         <a href="/nearby">NEARBY SHARE</a>
