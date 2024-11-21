@@ -279,7 +279,7 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
           bgColor="#ffffff"
           fgColor="#000000"
           style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-          value={`https://shipfilez.com/receiver?code=${shareCode}`}
+          value={`https://shipfilez.vercel.app/receiver?code=${shareCode}`}
           viewBox="0 0 256 256"
           className="size-40 md:size-64"
         />
