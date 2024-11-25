@@ -23,6 +23,9 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
   const [progress, setProgress] = useState<number>(0);
   const [NearByShareCode, setNearByShareCode] = useState<string | null>(null);
   const shareCodeCopyRef = useRef<HTMLButtonElement | null>(null);
+  const heartbeatIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null
+  );
 
   const CopyText = (text: string) => {
     if (text) {
@@ -177,6 +180,11 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
         fileLenght: files.length,
       };
       socket.send(JSON.stringify(initialMessage));
+      heartbeatIntervalRef.current = setInterval(() => {
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({ event: "EVENT_HEART_BEAT" }));
+        }
+      }, 10000);
     };
     socket.onmessage = async (event) => {
       const RES_MSG = JSON.parse(event.data);

@@ -24,6 +24,9 @@ export default function Page() {
   const clientCodeRef = useRef<string | null>(null);
   const fileNameRef = useRef<string | null>(null);
   const [percentage, setpercentage] = useState<string>("0");
+  const heartbeatIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null
+  );
 
   const requestHostToSendOffer = async () => {
     const requestHostToSendOfferMsg = {
@@ -58,6 +61,11 @@ export default function Page() {
           shareCode: IshareCode,
         })
       );
+      heartbeatIntervalRef.current = setInterval(() => {
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({ event: "EVENT_HEART_BEAT" }));
+        }
+      }, 10000);
     };
 
     socket.onmessage = async (event) => {
