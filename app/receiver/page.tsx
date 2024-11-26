@@ -132,17 +132,15 @@ export default function Page() {
                   };
                   fileNameRef.current = parsedMessage.fileName;
                 } else if (parsedMessage.type === "end-of-file") {
-                  setTimeout(() => {
-                    worker.postMessage("download");
-                    worker.addEventListener("message", (event: any) => {
-                      if (!fileNameRef.current) return;
-                      const stream = event.data.stream();
-                      const fileStream = streamSaver.createWriteStream(
-                        fileNameRef.current
-                      );
-                      stream.pipeTo(fileStream);
-                    });
-                  }, 1000);
+                  worker.postMessage("download");
+                  worker.addEventListener("message", (event: any) => {
+                    if (!fileNameRef.current) return;
+                    const stream = event.data.stream();
+                    const fileStream = streamSaver.createWriteStream(
+                      fileNameRef.current
+                    );
+                    stream.pipeTo(fileStream);
+                  });
                 }
               } catch (error) {
                 console.error("Error parsing message:", error);
