@@ -133,13 +133,14 @@ export default function Page() {
                   fileNameRef.current = parsedMessage.fileName;
                 } else if (parsedMessage.type === "end-of-file") {
                   worker.postMessage("download");
-                  worker.addEventListener("message", (event: any) => {
+                  worker.addEventListener("message", async (event: any) => {
                     if (!fileNameRef.current) return;
-                    const stream = event.data.stream();
+                    const blob = event.data as Blob;
+                    const stream = blob.stream();
                     const fileStream = streamSaver.createWriteStream(
                       fileNameRef.current
                     );
-                    stream.pipeTo(fileStream);
+                    await stream.pipeTo(fileStream);
                   });
                 }
               } catch (error) {
