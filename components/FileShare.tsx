@@ -203,19 +203,18 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
   // WebSocket + signaling setup
   useEffect(() => {
     if (socketRef.current) return;
-
-    const socket = new WebSocket("ws://localhost:8080");
+    const socket = new WebSocket("wss://api.shipfilez.app");
     socketRef.current = socket;
 
     socket.onopen = () => {
       setIsConnected(true);
-      // Ask server for a share code and register files metadata
-      const initialMessage = {
-        event: "EVENT_REQUEST_SHARE_CODE",
-        fileName: files.map((f) => f.name),
-        fileLength: files.length,
-      };
-      socket.send(JSON.stringify(initialMessage));
+      socket.send(
+        JSON.stringify({
+          event: "EVENT_REQUEST_SHARE_CODE",
+          fileName: files.map((f) => f.name),
+          fileLength: files.length,
+        })
+      );
 
       heartbeatIntervalRef.current = setInterval(() => {
         if (socket.readyState === WebSocket.OPEN) {
@@ -233,26 +232,26 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
       } else if (msg.event === "EVENT_REQUEST_NEAR_BY_SHARE_CODE") {
         setNearByShareCode(msg.nearByShareCode);
       } else if (msg.event === "EVENT_REQUEST_HOST_TO_SEND_OFFER") {
-        // start WebRTC offer creation as host/sender
         clientCodeRef.current = msg.clientId;
         shareCodeRef.current = msg.shareCode;
         createOffer();
       } else if (msg.event === "EVENT_ANSWER") {
-        const pc = pcRef.current;
-        if (!pc) return;
-        try {
-          await pc.setRemoteDescription(msg.answer);
-        } catch (err) {
-          console.error("Error setting remote description (answer):", err);
+        if (pcRef.current) {
+          try {
+            await pcRef.current.setRemoteDescription(msg.answer);
+          } catch (err) {
+            console.error("Error setting remote description:", err);
+          }
         }
       } else if (msg.event === "EVENT_ICE_CANDIDATE") {
-        const pc = pcRef.current;
-        if (!pc) return;
-        try {
-          const candidate = new RTCIceCandidate(msg.candidate);
-          await pc.addIceCandidate(candidate);
-        } catch (err) {
-          console.error("Error adding ICE candidate:", err);
+        if (pcRef.current) {
+          try {
+            await pcRef.current.addIceCandidate(
+              new RTCIceCandidate(msg.candidate)
+            );
+          } catch (err) {
+            console.error("Error adding ICE candidate:", err);
+          }
         }
       }
     };
@@ -284,7 +283,7 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [files]); // re-run if files change
+  }, [files]);
 
   return (
     <div className="flex h-auto w-full flex-col-reverse items-center justify-end gap-8 px-4 pt-8 text-white md:flex-row-reverse md:items-start md:justify-center md:px-8 md:pt-16">

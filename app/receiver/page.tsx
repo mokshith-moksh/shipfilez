@@ -37,7 +37,7 @@ export default function Page() {
 
   useEffect(() => {
     if (socketRef.current) return;
-    const socket = new WebSocket("ws://localhost:8080");
+    const socket = new WebSocket("wss://api.shipfilez.app");
     socketRef.current = socket;
     socket.onopen = () => {
       setIsConnected(true);
@@ -99,7 +99,7 @@ export default function Page() {
           const dataChannel = event.channel;
           dataChannel.binaryType = "arraybuffer";
 
-          let writable: any;
+          let writable: any = null;
           let offset = 0;
           let receivedFileMetadata: {
             fileName: string;
@@ -119,19 +119,16 @@ export default function Page() {
                     fileSize: parsedMessage.fileSize,
                   };
 
-                  // Extract extension if available
+                  // Get extension
                   const extensionMatch =
                     parsedMessage.fileName.match(/\.[^/.]+$/);
                   const extension = extensionMatch
                     ? extensionMatch[0]
                     : undefined;
 
-                  // Picker options
                   const pickerOpts: any = {
                     suggestedName: parsedMessage.fileName,
                   };
-
-                  // Only add accept if extension exists
                   if (extension) {
                     pickerOpts.types = [
                       {
@@ -141,18 +138,19 @@ export default function Page() {
                     ];
                   }
 
-                  // Prompt save location
                   const fileHandle = await (window as any).showSaveFilePicker(
                     pickerOpts
                   );
                   writable = await fileHandle.createWritable();
                   offset = 0;
 
-                  // Tell sender we’re ready
+                  // Tell sender to start sending multiple chunks
                   dataChannel.send(JSON.stringify({ type: "ready" }));
                 } else if (parsedMessage.type === "done") {
-                  await writable.close();
-                  console.log("✅ File saved directly to disk");
+                  if (writable) {
+                    await writable.close();
+                    console.log("✅ File saved directly to disk");
+                  }
                 }
               } catch (error) {
                 console.error("Error parsing control message:", error);
@@ -160,7 +158,6 @@ export default function Page() {
             } else if (message instanceof ArrayBuffer) {
               if (!writable) return;
 
-              // Write chunk directly to file
               await writable.write({
                 type: "write",
                 position: offset,
@@ -173,7 +170,7 @@ export default function Page() {
                 setpercentage(percent.toFixed(2));
               }
 
-              // Ack to sender
+              // Send ACK so sender can keep sending
               dataChannel.send(JSON.stringify({ type: "ack" }));
             }
           };
