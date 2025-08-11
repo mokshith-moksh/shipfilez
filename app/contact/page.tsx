@@ -42,31 +42,10 @@ const Contact = () => {
             Developer / Founder
           </p>
           <a
-            href="mailto:mokshith717@gmail.com"
+            href="mailto:mokshithmokshith7@gmail.com"
             className="mt-2 text-sm text-blue-400 hover:underline sm:text-base"
           >
-            mokshith717@gmail.com
-          </a>
-        </div>
-
-        {/* Team Member 2 */}
-        <div className="flex w-64 flex-col items-center text-center">
-          <Image
-            src="/image copy.png"
-            alt="K S Poorvik"
-            className="mb-4 rounded-full"
-            width={300}
-            height={300}
-          />
-          <h3 className="text-lg font-bold sm:text-xl">K S Poorvik</h3>
-          <p className="text-sm text-gray-400 sm:text-base">
-            Designer / Co-Founder
-          </p>
-          <a
-            href="mailto:poorvik1212@gmail.com"
-            className="mt-2 text-sm text-blue-400 hover:underline sm:text-base"
-          >
-            poorvik1212@gmail.com
+            mokshithmokshith7@gmail.com
           </a>
         </div>
       </div>
