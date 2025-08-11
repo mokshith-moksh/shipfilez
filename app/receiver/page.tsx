@@ -3,15 +3,11 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { BiSolidCircle } from "react-icons/bi";
 import { Progress } from "@/components/ui/progress";
-let streamSaver: any;
 
 interface typeFileDetail {
   fileName: string[];
   fileLength: number;
 }
-
-let worker: any;
-
 export default function Page() {
   const searchParams = useSearchParams();
   const IshareCode = searchParams.get("code");
@@ -22,13 +18,13 @@ export default function Page() {
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const shareCodeRef = useRef<string | null>(null);
   const clientCodeRef = useRef<string | null>(null);
-  const fileNameRef = useRef<string | null>(null);
   const [percentage, setpercentage] = useState<string>("0");
   const heartbeatIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
     null
   );
 
   const requestHostToSendOffer = async () => {
+    console.log("Requesting host to send offer...");
     const requestHostToSendOfferMsg = {
       event: "EVENT_REQUEST_HOST_TO_SEND_OFFER",
       shareCode: shareCodeRef.current,
@@ -40,18 +36,8 @@ export default function Page() {
   };
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      worker = new Worker(new URL("./worker.ts", import.meta.url));
-      import("streamsaver")
-        .then((StreamSaver) => {
-          streamSaver = StreamSaver;
-        })
-        .catch((error) => {
-          console.error("Error loading StreamSaver:", error);
-        });
-    }
     if (socketRef.current) return;
-    const socket = new WebSocket("wss://shipfilez.educlout.com");
+    const socket = new WebSocket("ws://localhost:8080");
     socketRef.current = socket;
     socket.onopen = () => {
       setIsConnected(true);
@@ -108,53 +94,87 @@ export default function Page() {
             );
           }
         };
-        let receivedFileSize = 0;
+
         pc.ondatachannel = (event) => {
           const dataChannel = event.channel;
-          dataChannel.binaryType = "blob";
+          dataChannel.binaryType = "arraybuffer";
+
+          let writable: any;
+          let offset = 0;
           let receivedFileMetadata: {
             fileName: string;
             fileSize: number;
           } | null = null;
 
-          dataChannel.onmessage = (event: MessageEvent) => {
-            dataChannel.binaryType = "blob";
+          dataChannel.onmessage = async (event: MessageEvent) => {
             const message = event.data;
 
             if (typeof message === "string") {
               try {
                 const parsedMessage = JSON.parse(message);
 
-                if (parsedMessage.type === "metadata") {
+                if (parsedMessage.type === "meta") {
                   receivedFileMetadata = {
                     fileName: parsedMessage.fileName,
                     fileSize: parsedMessage.fileSize,
                   };
-                  fileNameRef.current = parsedMessage.fileName;
-                } else if (parsedMessage.type === "end-of-file") {
-                  worker.postMessage("download");
-                  worker.addEventListener("message", async (event: any) => {
-                    if (!fileNameRef.current) return;
-                    const blob = event.data as Blob;
-                    const stream = blob.stream();
-                    const fileStream = streamSaver.createWriteStream(
-                      fileNameRef.current
-                    );
-                    await stream.pipeTo(fileStream);
-                  });
+
+                  // Extract extension if available
+                  const extensionMatch =
+                    parsedMessage.fileName.match(/\.[^/.]+$/);
+                  const extension = extensionMatch
+                    ? extensionMatch[0]
+                    : undefined;
+
+                  // Picker options
+                  const pickerOpts: any = {
+                    suggestedName: parsedMessage.fileName,
+                  };
+
+                  // Only add accept if extension exists
+                  if (extension) {
+                    pickerOpts.types = [
+                      {
+                        description: "File",
+                        accept: { "application/octet-stream": [extension] },
+                      },
+                    ];
+                  }
+
+                  // Prompt save location
+                  const fileHandle = await (window as any).showSaveFilePicker(
+                    pickerOpts
+                  );
+                  writable = await fileHandle.createWritable();
+                  offset = 0;
+
+                  // Tell sender we’re ready
+                  dataChannel.send(JSON.stringify({ type: "ready" }));
+                } else if (parsedMessage.type === "done") {
+                  await writable.close();
+                  console.log("✅ File saved directly to disk");
                 }
               } catch (error) {
-                console.error("Error parsing message:", error);
+                console.error("Error parsing control message:", error);
               }
-            } else if (message instanceof Blob) {
+            } else if (message instanceof ArrayBuffer) {
+              if (!writable) return;
+
+              // Write chunk directly to file
+              await writable.write({
+                type: "write",
+                position: offset,
+                data: message,
+              });
+              offset += message.byteLength;
+
               if (receivedFileMetadata) {
-                worker.postMessage(message);
-                const blobSize = message.size;
-                receivedFileSize += blobSize;
-                const downloadPercent =
-                  (receivedFileSize / receivedFileMetadata.fileSize) * 100;
-                setpercentage(downloadPercent.toFixed(2));
+                const percent = (offset / receivedFileMetadata.fileSize) * 100;
+                setpercentage(percent.toFixed(2));
               }
+
+              // Ack to sender
+              dataChannel.send(JSON.stringify({ type: "ack" }));
             }
           };
         };
