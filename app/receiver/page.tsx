@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { BiSolidCircle } from "react-icons/bi";
 import { Progress } from "@/components/ui/progress";
+import { BrowserWarningDialog } from "@/components/BrowserWarningDialog";
 
 interface typeFileDetail {
   fileName: string[];
@@ -106,6 +107,13 @@ export default function Page() {
             fileSize: number;
           } | null = null;
 
+          // Blob fallback storage
+          const blobParts: ArrayBuffer[] = [];
+
+          // Detect Chromium + FS API availability
+          const isChromium =
+            !!(window as any).showSaveFilePicker && !!(window as any).chrome;
+
           dataChannel.onmessage = async (event: MessageEvent) => {
             const message = event.data;
 
@@ -119,50 +127,72 @@ export default function Page() {
                     fileSize: parsedMessage.fileSize,
                   };
 
-                  // Get extension
-                  const extensionMatch =
-                    parsedMessage.fileName.match(/\.[^/.]+$/);
-                  const extension = extensionMatch
-                    ? extensionMatch[0]
-                    : undefined;
+                  if (isChromium) {
+                    // Chromium path → direct to disk
+                    const extensionMatch =
+                      parsedMessage.fileName.match(/\.[^/.]+$/);
+                    const extension = extensionMatch
+                      ? extensionMatch[0]
+                      : undefined;
 
-                  const pickerOpts: any = {
-                    suggestedName: parsedMessage.fileName,
-                  };
-                  if (extension) {
-                    pickerOpts.types = [
-                      {
-                        description: "File",
-                        accept: { "application/octet-stream": [extension] },
-                      },
-                    ];
+                    const pickerOpts: any = {
+                      suggestedName: parsedMessage.fileName,
+                    };
+                    if (extension) {
+                      pickerOpts.types = [
+                        {
+                          description: "File",
+                          accept: { "application/octet-stream": [extension] },
+                        },
+                      ];
+                    }
+
+                    const fileHandle = await (window as any).showSaveFilePicker(
+                      pickerOpts
+                    );
+                    writable = await fileHandle.createWritable();
+                    offset = 0;
+                  } else {
+                    console.warn(
+                      "Non-Chromium browser detected — using Blob fallback"
+                    );
                   }
-
-                  const fileHandle = await (window as any).showSaveFilePicker(
-                    pickerOpts
-                  );
-                  writable = await fileHandle.createWritable();
-                  offset = 0;
 
                   // Tell sender to start sending multiple chunks
                   dataChannel.send(JSON.stringify({ type: "ready" }));
                 } else if (parsedMessage.type === "done") {
-                  if (writable) {
+                  if (isChromium && writable) {
                     await writable.close();
                     console.log("✅ File saved directly to disk");
+                  } else {
+                    // Create Blob and trigger download
+                    const blob = new Blob(blobParts);
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = receivedFileMetadata?.fileName || "download";
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    console.log("✅ File saved via Blob fallback");
                   }
                 }
               } catch (error) {
                 console.error("Error parsing control message:", error);
               }
             } else if (message instanceof ArrayBuffer) {
-              if (!writable) return;
+              if (isChromium && writable) {
+                // Direct to disk write
+                await writable.write({
+                  type: "write",
+                  position: offset,
+                  data: message,
+                });
+              } else {
+                // Blob fallback: store in memory
+                blobParts.push(message);
+              }
 
-              await writable.write({
-                type: "write",
-                position: offset,
-                data: message,
-              });
+              // Always update offset for progress
               offset += message.byteLength;
 
               if (receivedFileMetadata) {
@@ -170,7 +200,7 @@ export default function Page() {
                 setpercentage(percent.toFixed(2));
               }
 
-              // Send ACK so sender can keep sending
+              // ACK sender
               dataChannel.send(JSON.stringify({ type: "ack" }));
             }
           };
@@ -223,6 +253,7 @@ export default function Page() {
           "url('https://res.cloudinary.com/da3j9iqkp/image/upload/v1730989736/iqgxciixwtfburooeffb.svg')",
       }}
     >
+      <BrowserWarningDialog />
       {/* Left Section */}
       <div className="flex w-full flex-col items-start justify-center gap-10 px-10 md:w-1/2 md:px-10">
         {/* Connection Status */}

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.26.0",
+    "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-progress": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@tabler/icons-react": "^3.19.0",

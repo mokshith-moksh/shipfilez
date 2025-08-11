@@ -7,6 +7,7 @@ export default function Home() {
   return (
     <div>
       {/* Background Section */}
+
       <div
         className="relative mx-auto flex h-screen w-screen bg-slate-900 bg-cover bg-center"
         style={{

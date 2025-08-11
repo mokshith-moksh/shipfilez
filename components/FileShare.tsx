@@ -305,7 +305,7 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
                 <Input
                   ref={urlRef}
                   className="h-10 w-full rounded-lg bg-white px-2 text-sm text-black md:w-[85%] md:text-lg"
-                  value={`https://shipfilez.vercel.app/receiver?code=${shareCode}`}
+                  value={`https://shipfilez.app/receiver?code=${shareCode}`}
                   readOnly
                 />
                 <button
@@ -348,7 +348,7 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
           bgColor="#ffffff"
           fgColor="#000000"
           style={{ height: "auto", width: "100%" }}
-          value={`https://shipfilez.vercel.app/receiver?code=${shareCode}`}
+          value={`https://shipfilez.app/receiver?code=${shareCode}`}
           viewBox="0 0 256 256"
           className="w-1/2 sm:w-2/3 md:w-1/3 lg:w-1/4 xl:w-1/5"
         />
