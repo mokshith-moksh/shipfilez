@@ -70,7 +70,7 @@ const FileShare: React.FC<FileShareProps> = ({ files }) => {
     // sender state
     let currentFileIndex = 0;
     let offset = 0;
-    const maxChunkSize = 64 * 1024; // 64KB chunks
+    const maxChunkSize = 256 * 1024; // 64KB chunks
 
     const sendMetadata = (file: File) => {
       dataChannel.send(
