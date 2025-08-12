@@ -48,6 +48,25 @@ const Contact = () => {
             mokshithmokshith7@gmail.com
           </a>
         </div>
+        <div className="flex w-64 flex-col items-center text-center">
+          <Image
+            src="/image copy.png"
+            alt="Poorvik"
+            className="mb-4 rounded-full"
+            width={300}
+            height={300}
+          />
+          <h3 className="text-lg font-bold sm:text-xl">K S Poorvik</h3>
+          <p className="text-sm text-gray-400 sm:text-base">
+            Designer / Co - Founder
+          </p>
+          <a
+            href="mailto:mokshithmokshith7@gmail.com"
+            className="mt-2 text-sm text-blue-400 hover:underline sm:text-base"
+          >
+            poorvik1212@gmail.com
+          </a>
+        </div>
       </div>
 
       {/* Social Media Links */}
