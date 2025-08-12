@@ -308,10 +308,28 @@ export default function Page() {
           <Progress value={Number(percentage)} />
           {percentage}%
         </div>
+
         {Number(percentage) === 100 && (
           <div className="text-green-500">
             <p className="text-lg font-semibold">File Download Complete!</p>
             <p className="text-sm">You can now access your files.</p>
+          </div>
+        )}
+
+        {/* Warning / Disconnection Alert */}
+        {!isConnected && (
+          <div className="mt-4 rounded-lg bg-yellow-100 px-4 py-3 text-yellow-800 shadow-md">
+            <p className="font-semibold">⚠ Connection Lost</p>
+            <p className="text-sm">
+              Your connection was interrupted. Please{" "}
+              <button
+                onClick={() => window.location.reload()}
+                className="text-yellow-900 underline hover:text-yellow-700"
+              >
+                refresh
+              </button>{" "}
+              to try again.
+            </p>
           </div>
         )}
       </div>
