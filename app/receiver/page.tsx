@@ -308,6 +308,12 @@ export default function Page() {
           <Progress value={Number(percentage)} />
           {percentage}%
         </div>
+        {Number(percentage) === 100 && (
+          <div className="text-green-500">
+            <p className="text-lg font-semibold">File Download Complete!</p>
+            <p className="text-sm">You can now access your files.</p>
+          </div>
+        )}
       </div>
 
       {/* Right Section */}
